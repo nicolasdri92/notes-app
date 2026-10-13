@@ -5,3 +5,4 @@ src-tauri/gen
 .playwright-mcp
 .icon-preview
 Aplicación minimalista de agenda/
+src-tauri/google_client.json

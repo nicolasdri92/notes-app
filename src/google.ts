@@ -1,7 +1,7 @@
 import { addDays, iso, money, parseIso, type Nota } from "./util";
 
 export type Calendario = { id: string; nombre: string; principal: boolean };
-export type EstadoGoogle = { credenciales: boolean; conectado: boolean; calendario: Calendario | null };
+export type EstadoGoogle = { incluidas: boolean; credenciales: boolean; conectado: boolean; calendario: Calendario | null };
 export type Resultado = { creados: number; actualizados: number; borrados: number };
 
 async function invoke<T>(cmd: string, args?: Record<string, unknown>) {
@@ -34,7 +34,9 @@ function eventoDe(n: Nota) {
   };
 }
 
-export const sincronizar = (notes: Nota[]) => invoke<Resultado>("google_sync", { eventos: notes.map(eventoDe) });
+/** Solo las notas que se comparten; las demás se borran de Google si estaban. */
+export const sincronizar = (notes: Nota[]) =>
+  invoke<Resultado>("google_sync", { eventos: notes.filter((n) => n.gcal !== false).map(eventoDe) });
 
 /** «hace 2 min», «hace 1 h»… */
 export function haceCuanto(d: Date) {

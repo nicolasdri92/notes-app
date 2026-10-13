@@ -42,6 +42,8 @@ type Form = {
   par: boolean;
   /** true mientras el usuario no tocó los contadores: siguen a la fecha elegida. */
   auto: boolean;
+  /** Se muestra en Google Calendar. */
+  gcal: boolean;
   /** Links a copiar en la nota nueva (al repetir una nota). */
   links?: Enlace[];
 };
@@ -348,6 +350,9 @@ function formHTML() {
         <div class="lbl-row"><label class="lbl" for="f-desc">Descripción</label><span class="opt">Opcional</span></div>
         <textarea id="f-desc" class="textarea" rows="3" placeholder="Cómo pagar, número de cuenta, recordatorios…">${esc(f.desc)}</textarea>
       </div>
+      ${googleListo() ? `<button class="check-row gcal-row" data-gcal-form>
+          <span class="cb${f.gcal ? " on" : ""}">${f.gcal ? ICON.check : ""}</span>Mostrar en Google Calendar
+        </button>` : ""}
       ${!f.id && f.links?.length ? `<span class="hint">${ICON.link} También se copia${f.links.length > 1 ? `n ${f.links.length} links` : " 1 link"}: ${f.links.map((l) => esc(urlCorta(l.url))).join(", ")}</span>` : ""}
     </div>
     <div class="panel-f">
@@ -566,6 +571,13 @@ function detailHTML() {
         <span class="d-k">Descripción</span>
         ${n.desc ? `<div class="d-desc">${esc(n.desc)}</div>` : '<span class="d-none">Sin descripción</span>'}
       </div>
+      ${googleListo() ? `<div class="field">
+        <span class="d-k">Google Calendar</span>
+        <button class="check-row gcal-row" data-act="gcal-toggle">
+          <span class="cb${n.gcal !== false ? " on" : ""}">${n.gcal !== false ? ICON.check : ""}</span>Mostrar en Google Calendar
+        </button>
+        ${n.series ? `<span class="hint">Se aplica a las ${serieDeNota(n).length} cuotas de la serie.</span>` : ""}
+      </div>` : ""}
       <div class="field">
         <span class="d-k">Adjuntos</span>
         ${(n.files ?? []).map((a) => `<div class="file" data-open-file="${esc(a.id)}" title="Abrir ${esc(a.name)}">
@@ -650,6 +662,13 @@ panelRoot.addEventListener("click", (e) => {
     f.auto = false;
     return renderRepeat();
   }
+  const gf = el.closest<HTMLElement>("[data-gcal-form]");
+  if (gf && S.form) {
+    S.form.gcal = !S.form.gcal;
+    gf.querySelector(".cb")!.classList.toggle("on", S.form.gcal);
+    gf.querySelector(".cb")!.innerHTML = S.form.gcal ? ICON.check : "";
+    return;
+  }
   if (el.closest("[data-par]") && S.form) {
     S.form.par = !S.form.par;
     return renderRepeat();
@@ -678,6 +697,14 @@ panelRoot.addEventListener("click", (e) => {
     case "delete": return del(false);
     case "delete-series": return del(true);
     case "repeat": return repeatNote();
+    case "gcal-toggle": {
+      const n = selected();
+      if (!n) return;
+      setGcal(n, n.gcal === false);
+      commit();
+      renderPanel();
+      return renderList();
+    }
     case "g-cred": case "g-conectar": case "g-cambiar": case "g-volver": case "g-sync": case "g-desconectar":
       return void accionGoogle(act);
     case "link-add": S.addingLink = true; renderPanel(); return panelRoot.querySelector<HTMLInputElement>("#link-input")?.focus();
@@ -708,7 +735,7 @@ function openNew() {
   const t = today();
   Object.assign(S, {
     panel: "form", selId: null, confirm: false, tried: false,
-    form: { id: null, title: "", date: iso(t), amount: "", desc: "", freq: "ninguna", cuotas: 3, desde: 1, par: false, auto: true },
+    form: { id: null, title: "", date: iso(t), amount: "", desc: "", freq: "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: true },
     cal: firstOfMonth(t),
   });
   renderPanel();
@@ -725,7 +752,7 @@ function repeatNote() {
     panel: "form", selId: null, confirm: false, tried: false, addingLink: false,
     form: {
       id: null, title: n.title, date: iso(sig), amount: fmtAmountInput(n.amount), desc: n.desc,
-      freq: n.anual ? "anual" : "ninguna", cuotas: 3, desde: 1, par: false, auto: true,
+      freq: n.anual ? "anual" : "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: n.gcal !== false,
       links: n.links?.length ? n.links : undefined,
     },
     cal: firstOfMonth(sig),
@@ -757,6 +784,7 @@ function cancelForm() {
 const formDeNota = (n: Nota): Form => ({
   id: n.id, title: n.title, date: n.date, amount: fmtAmountInput(n.amount), desc: n.desc,
   freq: repeticionDe(n), cuotas: n.series?.total ?? 3, desde: n.series?.n ?? 1, par: n.series?.par != null, auto: !n.series,
+  gcal: n.gcal !== false,
 });
 
 function edit() {
@@ -780,7 +808,7 @@ function save() {
     $("#f-title", panelRoot).focus();
     return;
   }
-  const data = { title: f.title.trim(), date: f.date, amount: parseAmount(f.amount), desc: f.desc.trim() };
+  const data = { title: f.title.trim(), date: f.date, amount: parseAmount(f.amount), desc: f.desc.trim(), gcal: f.gcal };
   const original = f.id ? S.notes.find((n) => n.id === f.id) : null;
   // Si cambia la repetición, la nota editada pasa a ser la cuota 1 (o queda suelta) y se crean las siguientes.
   const cambiaRep = !original || repeticionCambia(f, original);
@@ -810,6 +838,8 @@ function save() {
       S.notes = S.notes.map((n) =>
         n.series?.id === original.series!.id && n.series.n === par && !n.done ? { ...n, amount: data.amount } : n);
     }
+    // Compartir o no en Google vale para toda la serie.
+    if (!cambiaRep && original.series) setGcal(original, f.gcal);
   }
   S.notes = [...S.notes, ...nuevas];
   commit();
@@ -931,6 +961,13 @@ function saveLink() {
   S.addingLink = false;
   renderPanel();
   renderList();
+}
+
+/** Muestra u oculta en Google Calendar la nota (y toda su serie). */
+function setGcal(n: Nota, valor: boolean) {
+  const ids = serieDeNota(n);
+  // Sin definir equivale a «sí»: solo se guarda el false.
+  S.notes = S.notes.map((x) => (ids.includes(x.id) ? { ...x, gcal: valor ? undefined : false } : x));
 }
 
 /** Ids de las notas que comparten links con `n`: toda su serie, o solo ella si no repite. */
@@ -1081,6 +1118,8 @@ function googleHTML() {
             ${e?.calendario ? '<button class="btn btn-ghost g-back" data-act="g-volver">Cancelar</button>' : ""}`,
     },
   ];
+  // Con las credenciales dentro de la app, el usuario no ve el paso de cargarlas.
+  if (e?.incluidas) pasos.shift();
   const actual = pasos.findIndex((p) => !p.hecho);
   let cuerpo: string;
   if (!isTauri) cuerpo = `<p class="g-txt">Disponible en la app de escritorio.</p>`;

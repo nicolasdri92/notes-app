@@ -28,6 +28,8 @@ export type Nota = {
   anual?: boolean;
   files?: Adjunto[];
   links?: Enlace[];
+  /** false = no se muestra en Google Calendar (sin definir = sí). */
+  gcal?: boolean;
 };
 
 export type Tema = "claro" | "oscuro";

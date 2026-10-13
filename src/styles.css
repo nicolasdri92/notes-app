@@ -655,3 +655,5 @@ input::placeholder, textarea::placeholder { color: var(--text3); }
 .g-strong { font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn:disabled { opacity: .5; cursor: default; }
 #google[hidden] { display: none; }
+.gcal-row { margin-top: 0; align-self: flex-start; }
+.panel-b > .gcal-row { margin-top: -6px; }

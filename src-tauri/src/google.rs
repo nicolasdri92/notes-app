@@ -61,6 +61,8 @@ pub struct Calendario {
 
 #[derive(Serialize)]
 pub struct Estado {
+    /// Las credenciales vienen dentro de la app (no hay que cargar el JSON).
+    incluidas: bool,
     credenciales: bool,
     conectado: bool,
     calendario: Option<Calendario>,
@@ -93,13 +95,25 @@ fn ruta(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(ARCHIVO))
 }
 
+/// Credenciales incrustadas al compilar (ver build.rs).
+fn incluidas() -> Option<(&'static str, &'static str)> {
+    Some((option_env!("NOTES_GOOGLE_CLIENT_ID")?, option_env!("NOTES_GOOGLE_CLIENT_SECRET")?))
+}
+
 fn leer(app: &AppHandle) -> Result<Option<Config>, String> {
     let p = ruta(app)?;
-    if !p.exists() {
-        return Ok(None);
-    }
-    let texto = fs::read_to_string(&p).map_err(|e| e.to_string())?;
-    serde_json::from_str(&texto).map(Some).map_err(|e| e.to_string())
+    let guardada: Option<Config> = if p.exists() {
+        let texto = fs::read_to_string(&p).map_err(|e| e.to_string())?;
+        Some(serde_json::from_str(&texto).map_err(|e| e.to_string())?)
+    } else {
+        None
+    };
+    let Some((id, secret)) = incluidas() else { return Ok(guardada) };
+    // Las credenciales incluidas mandan; una conexión hecha con otras ya no sirve.
+    Ok(Some(match guardada {
+        Some(c) if c.client_id == id => Config { client_secret: secret.into(), ..c },
+        _ => Config { client_id: id.into(), client_secret: secret.into(), ..Default::default() },
+    }))
 }
 
 fn guardar(app: &AppHandle, cfg: &Config) -> Result<(), String> {
@@ -283,6 +297,7 @@ fn difiere(actual: &Value, deseado: &Value) -> bool {
 pub fn google_estado(app: AppHandle) -> Result<Estado, String> {
     let cfg = leer(&app)?;
     Ok(Estado {
+        incluidas: incluidas().is_some(),
         credenciales: cfg.is_some(),
         conectado: cfg.as_ref().map_or(false, |c| c.refresh_token.is_some()),
         calendario: cfg.and_then(|c| {

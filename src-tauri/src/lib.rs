@@ -60,6 +60,9 @@ pub struct Nota {
     pub files: Vec<Adjunto>,
     #[serde(default)]
     pub links: Vec<Enlace>,
+    /// `Some(false)` = no se muestra en Google Calendar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gcal: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -290,6 +293,7 @@ mod tests {
             series: None,
             anual: false,
             links: vec![],
+            gcal: None,
             files: files
                 .into_iter()
                 .map(|id| Adjunto { id: id.into(), name: "f.pdf".into(), size: 1 })
