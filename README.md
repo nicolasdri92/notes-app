@@ -1,7 +1,6 @@
 # Notes
 
 App de escritorio minimalista (Tauri v2 + TypeScript sin frameworks) para anotar vencimientos, pagos y trámites.
-El diseño de referencia está en `./Aplicación minimalista de agenda/design_handoff_agenda/`.
 
 ## Requisitos (Linux / Ubuntu)
 
