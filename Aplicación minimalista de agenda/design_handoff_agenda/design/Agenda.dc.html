@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>html,body{margin:0;height:100%}x-dc{display:block;height:100%}input::placeholder,textarea::placeholder{color:var(--text3)}</style>
+</helmet>
+<div ref="{{ rootRef }}" onMouseEnter="{{ onEnter }}" onMouseLeave="{{ onLeave }}" style="position:relative;width:900px;height:640px;flex:none;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:Geist,system-ui,sans-serif;font-size:13px;overflow:hidden;-webkit-font-smoothing:antialiased">
+
+  <div data-tauri-drag-region="" style="height:44px;flex:none;display:flex;align-items:center;gap:12px;padding-left:16px;border-bottom:1px solid var(--border);user-select:none">
+    <div style="width:150px;flex:none;display:flex;align-items:center;gap:8px">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.4;stroke-linecap:round;color:var(--accent)"><rect x="2.5" y="3.5" width="11" height="10" rx="2"></rect><line x1="2.5" y1="6.5" x2="13.5" y2="6.5"></line><line x1="5.5" y1="2" x2="5.5" y2="4.5"></line><line x1="10.5" y1="2" x2="10.5" y2="4.5"></line></svg>
+      <span style="font-weight:600;font-size:13px;letter-spacing:-.01em">Agenda</span>
+    </div>
+    <div style="flex:1;min-width:0;display:flex;justify-content:center">
+      <label style="display:flex;align-items:center;gap:8px;height:28px;width:100%;max-width:300px;padding:0 6px 0 10px;box-sizing:border-box;border-radius:7px;background:var(--surface2);color:var(--text3);cursor:text">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="flex:none;stroke-width:1.5;stroke-linecap:round"><circle cx="7" cy="7" r="4.5"></circle><line x1="10.5" y1="10.5" x2="14" y2="14"></line></svg>
+        <input ref="{{ searchRef }}" value="{{ query }}" onChange="{{ onQuery }}" onKeyDown="{{ onSearchKey }}" placeholder="Buscar notas" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:12.5px;color:var(--text);padding:0">
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ clearQuery }}" aria-label="Limpiar búsqueda" style="flex:none;width:20px;height:20px;display:grid;place-items:center;border:0;border-radius:5px;background:transparent;color:var(--text3);cursor:pointer;padding:0" style-hover="background:var(--border);color:var(--text)">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg>
+          </button>
+        </sc-if>
+        <sc-if value="{{ noQuery }}" hint-placeholder-val="{{ true }}">
+          <span style="flex:none;font-size:10.5px;color:var(--text3);border:1px solid var(--border);border-radius:4px;padding:1px 5px">Ctrl K</span>
+        </sc-if>
+      </label>
+    </div>
+    <div style="width:150px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px">
+      <button onClick="{{ toggleTheme }}" aria-label="Cambiar tema" title="Cambiar tema" style="width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--text2);cursor:pointer;padding:0" style-hover="background:var(--surface2);color:var(--text)">
+        <sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.4;stroke-linecap:round"><circle cx="8" cy="8" r="3"></circle><line x1="8" y1="1.5" x2="8" y2="2.8"></line><line x1="8" y1="13.2" x2="8" y2="14.5"></line><line x1="1.5" y1="8" x2="2.8" y2="8"></line><line x1="13.2" y1="8" x2="14.5" y2="8"></line><line x1="3.4" y1="3.4" x2="4.3" y2="4.3"></line><line x1="11.7" y1="11.7" x2="12.6" y2="12.6"></line><line x1="3.4" y1="12.6" x2="4.3" y2="11.7"></line><line x1="11.7" y1="4.3" x2="12.6" y2="3.4"></line></svg>
+        </sc-if>
+        <sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.4;stroke-linejoin:round"><path d="M13 9.6A5.5 5.5 0 1 1 6.4 3a4.4 4.4 0 0 0 6.6 6.6z"></path></svg>
+        </sc-if>
+      </button>
+      <button onClick="{{ openNew }}" title="Nueva nota (Ctrl+N)" style="height:28px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;border:0;border-radius:7px;background:var(--accent);color:var(--onAccent);font:500 12.5px Geist,system-ui,sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:var(--accentHover)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round"><line x1="8" y1="3.5" x2="8" y2="12.5"></line><line x1="3.5" y1="8" x2="12.5" y2="8"></line></svg>
+        Nueva nota
+      </button>
+    </div>
+    <div style="display:flex;height:100%;margin-left:4px">
+      <div style="width:44px;display:grid;place-items:center;color:var(--text2)" style-hover="background:var(--surface2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.1"><line x1="3.5" y1="8" x2="12.5" y2="8"></line></svg></div>
+            <div style="width:44px;display:grid;place-items:center;color:var(--text2)" style-hover="background:#C42B1C;color:#fff"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.1"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg></div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:auto">
+    <div style="max-width:680px;margin:0 auto;padding:22px 28px 56px;display:flex;flex-direction:column;gap:26px">
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px">
+          <div style="width:56px;height:56px;border-radius:16px;background:var(--surface2);display:grid;place-items:center;color:var(--text2)">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1;stroke-linecap:round"><rect x="2.5" y="3.5" width="11" height="10" rx="2"></rect><line x1="2.5" y1="6.5" x2="13.5" y2="6.5"></line><line x1="5.5" y1="2" x2="5.5" y2="4.5"></line><line x1="10.5" y1="2" x2="10.5" y2="4.5"></line><line x1="8" y1="8.5" x2="8" y2="11.5"></line><line x1="6.5" y1="10" x2="9.5" y2="10"></line></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+            <div style="font-size:16px;font-weight:600;letter-spacing:-.01em">Tu agenda está vacía</div>
+            <div style="font-size:13px;line-height:1.55;color:var(--text2);max-width:300px;text-wrap:pretty">Anotá vencimientos, pagos o trámites y los vas a ver ordenados por fecha.</div>
+          </div>
+          <button onClick="{{ openNew }}" style="margin-top:6px;height:34px;display:flex;align-items:center;gap:7px;padding:0 14px 0 12px;border:0;border-radius:8px;background:var(--accent);color:var(--onAccent);font:500 13px Geist,system-ui,sans-serif;cursor:pointer" style-hover="background:var(--accentHover)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round"><line x1="8" y1="3.5" x2="8" y2="12.5"></line><line x1="3.5" y1="8" x2="12.5" y2="8"></line></svg>
+            Crear la primera nota
+          </button>
+          <div style="font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px">o presioná <span style="font-size:11px;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:1px 5px">Ctrl N</span></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px">
+          <div style="font-size:14px;font-weight:600">Sin resultados para “{{ query }}”</div>
+          <div style="font-size:12.5px;color:var(--text2)">Probá con otra palabra o revisá la ortografía.</div>
+        </div>
+      </sc-if>
+
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div onClick="{{ g.onHeader }}" style="display:flex;align-items:center;gap:7px;padding:0 12px 6px;font-size:12px;font-weight:600;color:var(--text2);cursor:{{ g.cursor }};user-select:none">
+            <sc-if value="{{ g.isRed }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:var(--red)"></span></sc-if>
+            <span>{{ g.name }}</span>
+            <span style="color:var(--text3);font-weight:500;font-variant-numeric:tabular-nums">{{ g.count }}</span>
+            <sc-if value="{{ g.collapsible }}" hint-placeholder-val="{{ false }}">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--text3);transition:transform .15s;transform:rotate({{ g.rot }})"><polyline points="6,4 10,8 6,12"></polyline></svg>
+            </sc-if>
+          </div>
+          <sc-if value="{{ g.open }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+              <div onClick="{{ n.open }}" style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;cursor:default;box-shadow:{{ n.ring }};transition:background .12s,box-shadow .3s" style-hover="background:var(--surface2)">
+                <button onClick="{{ n.toggle }}" aria-label="Marcar como hecha" style="flex:none;width:18px;height:18px;padding:0;box-sizing:border-box;border-radius:5px;border:1.5px solid {{ n.cbBorder }};background:{{ n.cbBg }};display:grid;place-items:center;cursor:pointer;color:var(--onAccent)">
+                  <sc-if value="{{ n.done }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3.5,8.5 6.5,11.5 12.5,4.5"></polyline></svg></sc-if>
+                </button>
+                <div style="flex:1;min-width:0;display:flex;align-items:center;gap:14px;opacity:{{ n.opacity }}">
+                  <div style="flex:none;width:36px;display:flex;flex-direction:column;align-items:center;line-height:1">
+                    <span style="font-size:20px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:{{ n.dayColor }}">{{ n.day }}</span>
+                    <span style="margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3)">{{ n.mon }}</span>
+                  </div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                    <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:{{ n.deco }}">{{ n.title }}</div>
+                    <sc-if value="{{ n.hasDesc }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.desc }}</div></sc-if>
+                  </div>
+                  <sc-if value="{{ n.hasAmount }}" hint-placeholder-val="{{ true }}"><div style="flex:none;font-size:13px;font-weight:500;color:var(--text2);font-variant-numeric:tabular-nums;text-decoration:{{ n.deco }}">{{ n.amount }}</div></sc-if>
+                  <div style="flex:none;width:118px;display:flex;justify-content:flex-end">
+                    <sc-if value="{{ n.isRed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--redSoft);color:var(--red);font-size:11.5px;font-weight:500;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>{{ n.label }}</span></sc-if>
+                    <sc-if value="{{ n.isAmber }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--amberSoft);color:var(--amber);font-size:11.5px;font-weight:500;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>{{ n.label }}</span></sc-if>
+                    <sc-if value="{{ n.isNeutral }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:11.5px;color:var(--text3);white-space:nowrap">{{ n.label }}</span></sc-if>
+                    <sc-if value="{{ n.isDone }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:11.5px;color:var(--text3);white-space:nowrap">{{ n.label }}</span></sc-if>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:absolute;top:44px;left:0;right:0;bottom:0;background:var(--scrim)"></div>
+    <div style="position:absolute;top:44px;right:0;bottom:0;width:380px;max-width:100%;background:var(--surface);border-left:1px solid var(--border);box-shadow:-16px 0 40px var(--shadow);display:flex;flex-direction:column">
+
+      <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+        <div style="height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px">
+          <span style="font-size:14px;font-weight:600;letter-spacing:-.01em">{{ formHeading }}</span>
+          <button onClick="{{ cancelForm }}" aria-label="Cerrar" style="width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--text2);cursor:pointer;padding:0" style-hover="background:var(--surface2);color:var(--text)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.5;stroke-linecap:round"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg></button>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:12px;font-weight:500;color:var(--text2)">Título</label>
+            <input ref="{{ titleRef }}" value="{{ fTitle }}" onChange="{{ onTitle }}" onKeyDown="{{ onTitleKey }}" placeholder="Ej. Vencimiento IVA – Septiembre" style="height:36px;box-sizing:border-box;padding:0 11px;border:1px solid {{ titleBorder }};border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13.5px;outline:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accentSoft)">
+            <sc-if value="{{ titleErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--red)">Escribí un título para la nota.</span></sc-if>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+              <label style="font-size:12px;font-weight:500;color:var(--text2)">Fecha</label>
+              <span style="font-size:12px;color:var(--text);font-weight:500">{{ dateLabel }}</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <sc-for list="{{ quick }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.pick }}" style="height:26px;padding:0 10px;border-radius:6px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font:500 12px Geist,system-ui,sans-serif;cursor:pointer">{{ c.label }}</button>
+              </sc-for>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:8px 10px 10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 6px">
+                <span style="font-size:12.5px;font-weight:600">{{ calTitle }}</span>
+                <div style="display:flex;gap:2px">
+                  <button onClick="{{ prevMonth }}" aria-label="Mes anterior" style="width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;padding:0" style-hover="background:var(--surface2)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round"><polyline points="10,4 6,8 10,12"></polyline></svg></button>
+                  <button onClick="{{ nextMonth }}" aria-label="Mes siguiente" style="width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;padding:0" style-hover="background:var(--surface2)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round"><polyline points="6,4 10,8 6,12"></polyline></svg></button>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">L</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">M</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">M</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">J</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">V</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">S</span>
+                <span style="text-align:center;font-size:10.5px;font-weight:500;color:var(--text3);padding:4px 0">D</span>
+                <sc-for list="{{ cells }}" as="d" hint-placeholder-count="35">
+                  <button onClick="{{ d.pick }}" style="height:30px;border:0;border-radius:7px;padding:0;background:{{ d.bg }};color:{{ d.color }};font:{{ d.weight }} 12.5px Geist,system-ui,sans-serif;font-variant-numeric:tabular-nums;opacity:{{ d.opacity }};box-shadow:{{ d.ring }};cursor:pointer">{{ d.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between"><label style="font-size:12px;font-weight:500;color:var(--text2)">Monto</label><span style="font-size:11.5px;color:var(--text3)">Opcional</span></div>
+            <div style="height:36px;display:flex;align-items:center;gap:6px;padding:0 11px;box-sizing:border-box;border:1px solid var(--border);border-radius:8px">
+              <span style="color:var(--text3);font-size:13.5px">$</span>
+              <input value="{{ fAmount }}" onChange="{{ onAmount }}" onBlur="{{ onAmountBlur }}" inputMode="decimal" placeholder="0,00" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:13.5px;font-variant-numeric:tabular-nums;padding:0">
+              <span style="font-size:11px;color:var(--text3)">ARS</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between"><label style="font-size:12px;font-weight:500;color:var(--text2)">Descripción</label><span style="font-size:11.5px;color:var(--text3)">Opcional</span></div>
+            <textarea value="{{ fDesc }}" onChange="{{ onDesc }}" rows="3" placeholder="Cómo pagar, número de cuenta, recordatorios…" style="resize:none;padding:9px 11px;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;line-height:1.5;outline:0" style-focus="border-color:var(--accent);box-shadow:0 0 0 3px var(--accentSoft)"></textarea>
+          </div>
+        </div>
+        <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid var(--border)">
+          <span style="font-size:11.5px;color:var(--text3)">Ctrl ↵ para guardar</span>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ cancelForm }}" style="height:32px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:var(--text2);font:500 13px Geist,system-ui,sans-serif;cursor:pointer" style-hover="background:var(--surface2);color:var(--text)">Cancelar</button>
+            <button onClick="{{ save }}" style="height:32px;padding:0 14px;border:0;border-radius:7px;background:var(--accent);color:var(--onAccent);font:500 13px Geist,system-ui,sans-serif;cursor:pointer;opacity:{{ saveOpacity }}" style-hover="background:var(--accentHover)">{{ saveLabel }}</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+        <div style="height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 16px">
+          <button onClick="{{ toggleSel }}" style="height:30px;display:flex;align-items:center;gap:8px;padding:0 10px 0 6px;border:0;border-radius:7px;background:transparent;color:var(--text2);font:500 12.5px Geist,system-ui,sans-serif;cursor:pointer" style-hover="background:var(--surface2);color:var(--text)">
+            <span style="width:18px;height:18px;box-sizing:border-box;border-radius:5px;border:1.5px solid {{ dCbBorder }};background:{{ dCbBg }};display:grid;place-items:center;color:var(--onAccent)">
+              <sc-if value="{{ dDone }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3.5,8.5 6.5,11.5 12.5,4.5"></polyline></svg></sc-if>
+            </span>
+            {{ dToggleLabel }}
+          </button>
+          <button onClick="{{ close }}" aria-label="Cerrar" style="width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--text2);cursor:pointer;padding:0" style-hover="background:var(--surface2);color:var(--text)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.5;stroke-linecap:round"><line x1="4" y1="4" x2="12" y2="12"></line><line x1="12" y1="4" x2="4" y2="12"></line></svg></button>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:12px 24px 24px;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;align-items:flex-start;gap:16px">
+            <div style="flex:none;width:56px;height:60px;border-radius:12px;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1">
+              <span style="font-size:24px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:{{ dDayColor }}">{{ dDay }}</span>
+              <span style="margin-top:5px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3)">{{ dMon }}</span>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-top:2px">
+              <div style="font-size:19px;line-height:1.3;font-weight:600;letter-spacing:-.015em;text-wrap:pretty;text-decoration:{{ dDeco }}">{{ dTitle }}</div>
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--text2)">
+                <span>{{ dDate }}</span>
+                <sc-if value="{{ dRed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--redSoft);color:var(--red);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>{{ dLabel }}</span></sc-if>
+                <sc-if value="{{ dAmber }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--amberSoft);color:var(--amber);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>{{ dLabel }}</span></sc-if>
+                <sc-if value="{{ dPlain }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px;color:var(--text3)">· {{ dLabel }}</span></sc-if>
+              </div>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--border)"></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:11.5px;font-weight:500;color:var(--text3)">Monto</span>
+            <sc-if value="{{ hasDAmount }}" hint-placeholder-val="{{ true }}"><span style="font-size:22px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ dAmount }}</span></sc-if>
+            <sc-if value="{{ noDAmount }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--text3)">Sin monto</span></sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:11.5px;font-weight:500;color:var(--text3)">Descripción</span>
+            <sc-if value="{{ hasDDesc }}" hint-placeholder-val="{{ true }}"><div style="font-size:13.5px;line-height:1.6;color:var(--text);white-space:pre-wrap;text-wrap:pretty">{{ dDesc }}</div></sc-if>
+            <sc-if value="{{ noDDesc }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--text3)">Sin descripción</span></sc-if>
+          </div>
+        </div>
+        <sc-if value="{{ notConfirm }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid var(--border)">
+            <button onClick="{{ askDelete }}" style="height:32px;display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;border:0;border-radius:7px;background:transparent;color:var(--red);font:500 13px Geist,system-ui,sans-serif;cursor:pointer" style-hover="background:var(--redSoft)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round"><line x1="3" y1="4.5" x2="13" y2="4.5"></line><path d="M4.8 4.5l.6 8.5h5.2l.6-8.5M6.5 4.5V3h3v1.5"></path></svg>
+              Eliminar
+            </button>
+            <button onClick="{{ edit }}" style="height:32px;padding:0 14px;border:1px solid var(--borderStrong);border-radius:7px;background:var(--surface);color:var(--text);font:500 13px Geist,system-ui,sans-serif;cursor:pointer" style-hover="background:var(--surface2)">Editar</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ confirm }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid var(--border);background:var(--redSoft)">
+            <span style="font-size:12.5px;font-weight:500;color:var(--red)">¿Eliminar esta nota?</span>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ cancelDelete }}" style="height:32px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:var(--text2);font:500 13px Geist,system-ui,sans-serif;cursor:pointer" style-hover="color:var(--text)">Cancelar</button>
+              <button onClick="{{ del }}" style="height:32px;padding:0 14px;border:0;border-radius:7px;background:var(--red);color:var(--surface);font:500 13px Geist,system-ui,sans-serif;cursor:pointer">Eliminar</button>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;height:36px;padding:0 6px 0 14px;border-radius:9px;background:var(--text);color:var(--bg);font-size:12.5px;box-shadow:0 8px 24px var(--shadow)">
+      Nota eliminada
+      <button onClick="{{ undo }}" style="height:26px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--bg);font:600 12.5px Geist,system-ui,sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px">Deshacer</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:640},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;claro&quot;,&quot;oscuro&quot;],&quot;default&quot;:&quot;claro&quot;,&quot;tsType&quot;:&quot;'claro'|'oscuro'&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;lista&quot;,&quot;nueva&quot;,&quot;detalle&quot;,&quot;editar&quot;,&quot;vacio&quot;,&quot;busqueda&quot;],&quot;default&quot;:&quot;lista&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;globalShortcuts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIA=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const sod=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const piso=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const diff=(a,b)=>Math.round((sod(a)-sod(b))/864e5);
+const money=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(n);
+const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const parseAmt=s=>{if(!s||!String(s).trim())return null;const v=parseFloat(String(s).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));return isNaN(v)?null:v};
+const fmtIn=n=>n==null?'':new Intl.NumberFormat('es-AR',{maximumFractionDigits:2}).format(n);
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const longDate=d=>`${DIA[d.getDay()]} ${d.getDate()} de ${MESL[d.getMonth()]}`;
+const rel=dd=>dd===0?'hoy':dd===1?'mañana':dd===-1?'ayer':dd>0?`en ${dd} días`:`hace ${-dd} días`;
+
+const THEMES={
+  claro:{bg:'#F7F6F3',surface:'#FFFFFF',surface2:'#EFEDE8',border:'#E5E2DC',borderStrong:'#D3CFC7',text:'#1F1D1A',text2:'#67635B',text3:'#9A958B',accent:'#2F6B5E',accentHover:'#275A4F',accentSoft:'#E1ECE8',onAccent:'#FFFFFF',red:'#B04A3A',redSoft:'#F6E5E0',amber:'#8F6118',amberSoft:'#F4EAD3',scrim:'rgba(31,29,26,.14)',shadow:'rgba(40,32,20,.10)'},
+  oscuro:{bg:'#1A1917',surface:'#22211F',surface2:'#2B2A27',border:'#33312E',borderStrong:'#46433E',text:'#ECE9E3',text2:'#A6A198',text3:'#77736B',accent:'#7DBDAA',accentHover:'#95CBBB',accentSoft:'rgba(125,189,170,.16)',onAccent:'#0F1F1A',red:'#E59B8C',redSoft:'rgba(229,155,140,.13)',amber:'#DDB56E',amberSoft:'rgba(221,181,110,.13)',scrim:'rgba(0,0,0,.35)',shadow:'rgba(0,0,0,.35)'}
+};
+
+function demo(){const t=sod(new Date());let i=0;const N=(title,o,amount,desc,done)=>({id:'n'+(++i),title,date:iso(add(t,o)),amount:amount==null?null:amount,desc:desc||'',done:!!done});
+return [
+N('Ingresos Brutos – Anticipo septiembre',-3,42380,'ARBA · Régimen general. Pagar con VEP desde el home banking.'),
+N('Vencimiento IVA – Septiembre',0,184560,'DDJJ F.2002. Revisar percepciones y retenciones antes de presentar.\nPagar con VEP.'),
+N('Monotributo – Cuota octubre',2,32221.67,'Débito automático de la tarjeta. Confirmar que haya saldo.'),
+N('Luz – Factura bimestral',3,28940),
+N('Renovar VTV',6,null,'Sacar turno online. Llevar cédula verde y DNI.'),
+N('Ganancias – Anticipo 4',12,96000),
+N('Expensas noviembre',19,87500,'Transferir a la cuenta del consorcio y mandar el comprobante.'),
+N('Bienes Personales – Anticipo 3',33,54800),
+N('Internet – Factura octubre',-4,19990,'',true),
+N('Autónomos – Septiembre',-7,45210,'',true),
+N('Presentar F.931',-9,null,'Cargas sociales del personal.',true)
+];}
+
+class Component extends DCLogic {
+  constructor(props){super(props);this.state=this.init(props);this.rootRef=React.createRef();this.titleRef=React.createRef();this.searchRef=React.createRef();this.hover=false;}
+  init(p){
+    const s=p.screen||'lista',t=sod(new Date()),notes=s==='vacio'?[]:demo();
+    const st={notes,theme:p.theme||'claro',query:s==='busqueda'?'anticipo':'',doneOpen:false,panel:null,selId:null,form:null,tried:false,confirm:false,toast:null,flash:null,cal:new Date(t.getFullYear(),t.getMonth(),1)};
+    if(s==='nueva'){const d=add(t,5);Object.assign(st,{panel:'form',form:{id:null,title:'Patente auto – Cuota 5',date:iso(d),amount:'38.450',desc:''},cal:new Date(d.getFullYear(),d.getMonth(),1)});}
+    if(s==='detalle'||s==='editar'){const n=notes[1];st.selId=n.id;st.panel=s==='detalle'?'detail':'form';if(s==='editar')st.form=this.formFrom(n);}
+    return st;
+  }
+  formFrom(n){return {id:n.id,title:n.title,date:n.date,amount:fmtIn(n.amount),desc:n.desc}}
+  applyTheme(){const el=this.rootRef.current;if(!el)return;const t=THEMES[this.state.theme]||THEMES.claro;for(const k in t)el.style.setProperty('--'+k,t[k]);}
+  componentDidMount(){this.applyTheme();this.onKey=e=>this.key(e);window.addEventListener('keydown',this.onKey);}
+  componentWillUnmount(){window.removeEventListener('keydown',this.onKey);clearTimeout(this.ft);clearTimeout(this.tt);}
+  componentDidUpdate(prev){
+    if(prev.theme!==this.props.theme&&this.props.theme)this.setState({theme:this.props.theme});
+    if(prev.screen!==this.props.screen)this.setState(this.init(this.props));
+    this.applyTheme();
+    if(this.wantFocus&&this.titleRef.current){this.wantFocus=false;this.titleRef.current.focus();}
+  }
+  key(e){
+    if(this.props.globalShortcuts===false&&!this.hover)return;
+    const mod=e.ctrlKey||e.metaKey,k=(e.key||'').toLowerCase();
+    if(mod&&k==='n'){e.preventDefault();this.openNew();}
+    else if(mod&&k==='k'){e.preventDefault();this.searchRef.current&&this.searchRef.current.focus();}
+    else if(mod&&k==='enter'&&this.state.panel==='form'){e.preventDefault();this.save();}
+    else if(k==='escape'){if(this.state.confirm)this.setState({confirm:false});else if(this.state.panel)this.cancelForm();}
+  }
+  sel(){return this.state.notes.find(n=>n.id===this.state.selId)}
+  openNew=()=>{const t=sod(new Date());this.wantFocus=true;this.setState({panel:'form',selId:null,confirm:false,tried:false,form:{id:null,title:'',date:iso(t),amount:'',desc:''},cal:new Date(t.getFullYear(),t.getMonth(),1)})}
+  close=()=>this.setState({panel:null,selId:null,confirm:false,form:null,tried:false})
+  cancelForm=()=>{const f=this.state.form;if(this.state.panel==='form'&&f&&f.id)this.setState({panel:'detail',form:null,tried:false});else this.close();}
+  edit=()=>{const n=this.sel();if(!n)return;const d=piso(n.date);this.wantFocus=true;this.setState({panel:'form',form:this.formFrom(n),tried:false,confirm:false,cal:new Date(d.getFullYear(),d.getMonth(),1)})}
+  save=()=>{const f=this.state.form;if(!f)return;if(!f.title.trim()){this.setState({tried:true});return}
+    const data={title:f.title.trim(),date:f.date,amount:parseAmt(f.amount),desc:f.desc.trim()};
+    if(f.id){this.setState(s=>({notes:s.notes.map(n=>n.id===f.id?Object.assign({},n,data):n),panel:'detail',form:null}))}
+    else{const id='n'+Date.now();this.setState(s=>({notes:s.notes.concat([Object.assign({id,done:false},data)]),panel:null,form:null,query:'',flash:id}));clearTimeout(this.ft);this.ft=setTimeout(()=>this.setState({flash:null}),1800)}}
+  toggle=id=>this.setState(s=>({notes:s.notes.map(n=>n.id===id?Object.assign({},n,{done:!n.done}):n)}))
+  del=()=>{const n=this.sel();if(!n)return;const idx=this.state.notes.indexOf(n);this.setState(s=>({notes:s.notes.filter(x=>x.id!==n.id),panel:null,selId:null,confirm:false,toast:{note:n,idx}}));clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),5000)}
+  undo=()=>{const t=this.state.toast;if(!t)return;this.setState(s=>{const a=s.notes.slice();a.splice(t.idx,0,t.note);return {notes:a,toast:null}})}
+  setF=(k,v)=>this.setState(s=>({form:Object.assign({},s.form,{[k]:v})}))
+  pick=d=>this.setState(s=>({form:Object.assign({},s.form,{date:iso(d)}),cal:new Date(d.getFullYear(),d.getMonth(),1)}))
+
+  renderVals(){
+    const s=this.state,t=sod(new Date()),q=norm(s.query.trim());
+    const deco=n=>{const d=piso(n.date),dd=diff(d,t);let kind='neutral',label;
+      if(n.done){kind='done';label='Hecha'}else if(dd<0){kind='red';label=dd===-1?'Venció ayer':`Venció hace ${-dd} días`}
+      else if(dd===0){kind='amber';label='Vence hoy'}else if(dd===1){kind='amber';label='Vence mañana'}
+      else if(dd<=3){kind='amber';label=`En ${dd} días`}else label=`En ${dd} días`;return {d,dd,kind,label}};
+    const items=s.notes.filter(n=>!q||norm(n.title+' '+n.desc).includes(q)).map(n=>{const x=deco(n);return Object.assign({},n,x)}).sort((a,b)=>a.d-b.d);
+    const row=n=>({title:n.title,desc:n.desc.split('\n')[0],hasDesc:!!n.desc,day:n.d.getDate(),mon:MES[n.d.getMonth()],
+      amount:n.amount!=null?money(n.amount):'',hasAmount:n.amount!=null,label:n.label,isRed:n.kind==='red',isAmber:n.kind==='amber',isNeutral:n.kind==='neutral',isDone:n.kind==='done',
+      done:n.done,opacity:n.done?.45:1,deco:n.done?'line-through':'none',dayColor:n.kind==='red'?'var(--red)':'var(--text)',
+      cbBorder:n.done?'var(--accent)':'var(--borderStrong)',cbBg:n.done?'var(--accent)':'transparent',
+      ring:s.flash===n.id?'inset 0 0 0 1px var(--accent), 0 0 0 3px var(--accentSoft)':(s.panel&&s.selId===n.id?'inset 0 0 0 1px var(--borderStrong)':'none'),
+      open:()=>this.setState({panel:'detail',selId:n.id,confirm:false,form:null}),toggle:e=>{e.stopPropagation();this.toggle(n.id)}});
+    const defs=[['Vencidas',x=>!x.done&&x.dd<0],['Esta semana',x=>!x.done&&x.dd>=0&&x.dd<=6],['Próximas',x=>!x.done&&x.dd>6],['Hechas',x=>x.done]];
+    const groups=defs.map(([name,f],i)=>{let g=items.filter(f);if(i===3)g=g.slice().reverse();const coll=i===3&&!q,open=i!==3||s.doneOpen||!!q;
+      return {name,count:g.length,items:g.map(row),isRed:i===0,collapsible:coll,open,rot:open?'90deg':'0deg',cursor:coll?'pointer':'default',onHeader:coll?()=>this.setState(z=>({doneOpen:!z.doneOpen})):undefined}}).filter(g=>g.count);
+    const isEmpty=s.notes.length===0;
+    const v={rootRef:this.rootRef,titleRef:this.titleRef,searchRef:this.searchRef,onEnter:()=>{this.hover=true},onLeave:()=>{this.hover=false},
+      query:s.query,hasQuery:!!s.query,noQuery:!s.query,onQuery:e=>this.setState({query:e.target.value}),clearQuery:()=>this.setState({query:''}),
+      onSearchKey:e=>{if(e.key==='Escape'){e.stopPropagation();this.setState({query:''});e.target.blur()}},
+      isDark:s.theme==='oscuro',isLight:s.theme!=='oscuro',toggleTheme:()=>this.setState(z=>({theme:z.theme==='oscuro'?'claro':'oscuro'})),
+      openNew:this.openNew,isEmpty,noResults:!isEmpty&&!!q&&items.length===0,groups,
+      panelOpen:!!s.panel,isForm:s.panel==='form',isDetail:s.panel==='detail',close:this.close,cancelForm:this.cancelForm,save:this.save,
+      hasToast:!!s.toast,undo:this.undo};
+    if(s.panel==='form'&&s.form){const f=s.form,fd=piso(f.date),dd=diff(fd,t),cm=s.cal,y=cm.getFullYear(),m=cm.getMonth();
+      const off=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),rows=Math.ceil((off+dim)/7),start=add(new Date(y,m,1),-off);
+      const cells=[];for(let i=0;i<rows*7;i++){const d=add(start,i),selD=iso(d)===f.date,out=d.getMonth()!==m,isT=iso(d)===iso(t);
+        cells.push({label:d.getDate(),pick:()=>this.pick(d),bg:selD?'var(--accent)':'transparent',color:selD?'var(--onAccent)':isT?'var(--accent)':'var(--text)',weight:selD||isT?600:400,opacity:out?.35:1,ring:isT&&!selD?'inset 0 0 0 1px var(--accentSoft)':'none'})}
+      const quick=[['Hoy',t],['Mañana',add(t,1)],['En una semana',add(t,7)],['Fin de mes',new Date(t.getFullYear(),t.getMonth()+1,0)]].map(([label,d])=>{const on=iso(d)===f.date;
+        return {label,pick:()=>this.pick(d),bg:on?'var(--accentSoft)':'transparent',color:on?'var(--accent)':'var(--text2)',border:on?'transparent':'var(--border)'}});
+      const err=s.tried&&!f.title.trim();
+      Object.assign(v,{formHeading:f.id?'Editar nota':'Nueva nota',saveLabel:f.id?'Guardar cambios':'Guardar',fTitle:f.title,fAmount:f.amount,fDesc:f.desc,
+        onTitle:e=>this.setF('title',e.target.value),onAmount:e=>this.setF('amount',e.target.value),onDesc:e=>this.setF('desc',e.target.value),
+        onAmountBlur:()=>this.setF('amount',fmtIn(parseAmt(s.form.amount))),onTitleKey:e=>{if(e.key==='Enter'){e.preventDefault();this.save()}},
+        titleErr:err,titleBorder:err?'var(--red)':'var(--border)',saveOpacity:f.title.trim()?1:.5,
+        dateLabel:cap(longDate(fd))+' · '+rel(dd),quick,cells,calTitle:cap(MESL[m])+' '+y,
+        prevMonth:()=>this.setState({cal:new Date(y,m-1,1)}),nextMonth:()=>this.setState({cal:new Date(y,m+1,1)})});}
+    const n=this.sel();
+    if(s.panel==='detail'&&n){const x=deco(n);
+      Object.assign(v,{dTitle:n.title,dDay:x.d.getDate(),dMon:MES[x.d.getMonth()],dDate:cap(longDate(x.d))+' de '+x.d.getFullYear(),dLabel:x.label,
+        dRed:x.kind==='red',dAmber:x.kind==='amber',dPlain:x.kind==='neutral'||x.kind==='done',dDayColor:x.kind==='red'?'var(--red)':'var(--text)',
+        dDeco:n.done?'line-through':'none',dDone:n.done,dToggleLabel:n.done?'Hecha':'Marcar como hecha',
+        dCbBorder:n.done?'var(--accent)':'var(--borderStrong)',dCbBg:n.done?'var(--accent)':'transparent',toggleSel:()=>this.toggle(n.id),
+        hasDAmount:n.amount!=null,noDAmount:n.amount==null,dAmount:n.amount!=null?money(n.amount):'',hasDDesc:!!n.desc,noDDesc:!n.desc,dDesc:n.desc,
+        confirm:s.confirm,notConfirm:!s.confirm,askDelete:()=>this.setState({confirm:true}),cancelDelete:()=>this.setState({confirm:false}),del:this.del,edit:this.edit});}
+    return v;
+  }
+}
+</script>
+</body>
+</html>

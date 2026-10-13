@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Notes
+Comment=Agenda de vencimientos e impuestos
+Exec=agenda --hidden
+Icon=agenda
+StartupWMClass=agenda
+Terminal=false
+X-GNOME-Autostart-enabled=true

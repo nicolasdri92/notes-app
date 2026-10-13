@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notes</title>
+    <script>
+      // Aplica el tema antes del primer pintado para evitar el parpadeo.
+      try {
+        var t = localStorage.getItem("agenda-theme");
+        if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
+        document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="titlebar" data-tauri-drag-region>
+        <div class="brand" data-tauri-drag-region>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><line x1="2.5" y1="6.5" x2="13.5" y2="6.5"/><line x1="5.5" y1="2" x2="5.5" y2="4.5"/><line x1="10.5" y1="2" x2="10.5" y2="4.5"/></svg>
+          <span data-tauri-drag-region>Notes</span>
+        </div>
+        <div class="search-wrap" data-tauri-drag-region>
+          <label class="search">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+            <input id="search" placeholder="Buscar notas" spellcheck="false" autocomplete="off" />
+            <button id="search-clear" class="search-clear" aria-label="Limpiar búsqueda" hidden>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+            </button>
+            <span id="search-kbd" class="kbd">Ctrl K</span>
+          </label>
+        </div>
+        <div class="actions" data-tauri-drag-region>
+          <button id="google" class="icon-btn" aria-label="Google Calendar" title="Google Calendar" hidden>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M4.6 12.5h6.8a2.9 2.9 0 0 0 .5-5.75A4 4 0 0 0 4.3 6.2a3.15 3.15 0 0 0 .3 6.3z"/></svg>
+            <span class="gdot"></span>
+          </button>
+          <button id="theme" class="icon-btn" aria-label="Cambiar tema" title="Cambiar tema"></button>
+          <button id="new" class="btn btn-primary btn-sm" title="Nueva nota (Ctrl+N)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="8" y1="3.5" x2="8" y2="12.5"/><line x1="3.5" y1="8" x2="12.5" y2="8"/></svg>
+            Nueva nota
+          </button>
+        </div>
+        <div class="winctl">
+          <button id="win-min" class="win-min" aria-label="Minimizar">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><line x1="3.5" y1="8" x2="12.5" y2="8"/></svg>
+          </button>
+          <button id="win-close" class="win-close" aria-label="Cerrar">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+          </button>
+        </div>
+      </header>
+      <main id="content" class="content"></main>
+      <div id="selbar-root"></div>
+      <div id="panel-root"></div>
+      <div id="toast-root"></div>
+    </div>
+  </body>
+</html>

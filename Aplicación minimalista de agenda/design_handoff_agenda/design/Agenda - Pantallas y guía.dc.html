@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E7E4DE}a{color:#2F6B5E}a:hover{color:#275A4F}</style>
+</helmet>
+<div style="padding:64px 72px 96px;font-family:Geist,system-ui,sans-serif;color:#1F1D1A;display:flex;flex-direction:column;gap:72px;width:max-content">
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:760px">
+    <div style="font:500 12px 'Geist Mono',monospace;color:#8A857B;letter-spacing:.04em">AGENDA · APP DE ESCRITORIO (TAURI) · 900 × 640</div>
+    <div style="font-size:34px;font-weight:600;letter-spacing:-.025em">Pantallas y guía de estilos</div>
+    <div style="font-size:15px;line-height:1.6;color:#67635B;text-wrap:pretty">Cada ventana es interactiva: marcá notas, abrí el detalle, creá o eliminá. Con el mouse sobre una ventana funcionan Ctrl+N (nueva), Ctrl+K (buscar), Ctrl+↵ (guardar) y Esc (cerrar). El ícono de luna/sol alterna el tema.</div>
+  </div>
+
+  <section data-screen-label="01 Lista" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">01</span><span style="font-size:18px;font-weight:600">Vista principal</span><span style="font-size:13px;color:#8A857B">Agrupada por Vencidas · Esta semana · Próximas · Hechas (colapsada)</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="lista" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="lista" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="02 Nueva nota" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">02</span><span style="font-size:18px;font-weight:600">Nueva nota</span><span style="font-size:13px;color:#8A857B">Panel lateral · atajos de fecha + calendario siempre visible · Ctrl+N</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="nueva" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="nueva" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="03 Detalle" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">03</span><span style="font-size:18px;font-weight:600">Detalle</span><span style="font-size:13px;color:#8A857B">Clic en una fila · marcar como hecha, editar o eliminar (con confirmación y Deshacer)</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="detalle" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="detalle" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="03b Edición" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">03b</span><span style="font-size:18px;font-weight:600">Edición</span><span style="font-size:13px;color:#8A857B">Mismo formulario, precargado · Cancelar vuelve al detalle</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="editar" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="editar" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="04 Vacío" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">04</span><span style="font-size:18px;font-weight:600">Estado vacío</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="vacio" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="vacio" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="05 Búsqueda" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">05</span><span style="font-size:18px;font-weight:600">Búsqueda</span><span style="font-size:13px;color:#8A857B">Filtra en vivo por título y descripción, sin distinguir acentos · las hechas se expanden</span></div>
+    <div style="display:flex;gap:28px">
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 24px 60px rgba(40,30,20,.14)"><dc-import name="Agenda" theme="claro" screen="busqueda" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+      <div style="width:900px;height:640px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px rgba(20,15,10,.28)"><dc-import name="Agenda" theme="oscuro" screen="busqueda" global-shortcuts="{{ false }}" hint-size="900px,640px" style="width:900px;height:640px"></dc-import></div>
+    </div>
+  </section>
+
+  <section data-screen-label="06 Guía de estilos" style="width:1828px;display:flex;flex-direction:column;gap:28px">
+    <div style="display:flex;align-items:baseline;gap:12px"><span style="font:500 12px 'Geist Mono',monospace;color:#8A857B">06</span><span style="font-size:18px;font-weight:600">Guía de estilos</span></div>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:28px">
+      <div style="background:#FFFFFF;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:18px">
+        <div style="font-size:12px;font-weight:600;color:#9A958B;letter-spacing:.06em">TIPOGRAFÍA · GEIST</div>
+        <sc-for list="{{ type }}" as="ty" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:150px 1fr;align-items:baseline;gap:16px;padding-bottom:14px;border-bottom:1px solid #EFEDE8">
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12.5px;font-weight:500">{{ ty.name }}</span><span style="font:400 11px 'Geist Mono',monospace;color:#9A958B">{{ ty.spec }}</span></div>
+            <span style="font-size:{{ ty.size }};font-weight:{{ ty.weight }};letter-spacing:{{ ty.ls }};color:{{ ty.color }};font-variant-numeric:tabular-nums">{{ ty.sample }}</span>
+          </div>
+        </sc-for>
+        <div style="font-size:12.5px;line-height:1.6;color:#67635B">Montos y números de día con <span style="font-family:'Geist Mono',monospace;font-size:11.5px">font-variant-numeric: tabular-nums</span>. Si se prefiere, Inter es reemplazo directo.</div>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:18px">
+        <div style="font-size:12px;font-weight:600;color:#9A958B;letter-spacing:.06em">ESPACIADO · BASE 4</div>
+        <sc-for list="{{ spacing }}" as="sp" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:44px 1fr 150px;align-items:center;gap:14px">
+            <span style="font:500 12px 'Geist Mono',monospace">{{ sp.v }}</span>
+            <div style="height:10px;width:{{ sp.w }};background:#2F6B5E;border-radius:2px;opacity:.75"></div>
+            <span style="font-size:12px;color:#9A958B">{{ sp.use }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:18px">
+        <div style="font-size:12px;font-weight:600;color:#9A958B;letter-spacing:.06em">RADIOS, ALTURAS E ÍCONOS</div>
+        <sc-for list="{{ radii }}" as="r" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:44px;height:32px;border:1.5px solid #2F6B5E;border-radius:{{ r.v }};background:#E1ECE8"></div>
+            <span style="font:500 12px 'Geist Mono',monospace;width:44px">{{ r.v }}</span>
+            <span style="font-size:12px;color:#9A958B">{{ r.use }}</span>
+          </div>
+        </sc-for>
+        <div style="height:1px;background:#EFEDE8"></div>
+        <div style="font-size:12.5px;line-height:1.7;color:#67635B">Barra superior 44 · botón chico 28 · botón 32 · input 36 · fila ~58<br>Panel lateral 380 · contenido máx. 680<br>Íconos lineales 14–16 px, trazo 1.4–1.6, puntas redondeadas</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div style="{{ th.vars }}">
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:15px;font-weight:600">{{ th.name }}</span><span style="font:400 11px 'Geist Mono',monospace;color:var(--text3)">var(--token)</span></div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+            <sc-for list="{{ th.colors }}" as="c" hint-placeholder-count="16">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="height:44px;border-radius:8px;background:{{ c.hex }};box-shadow:inset 0 0 0 1px var(--border)"></div>
+                <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:12px;font-weight:500">{{ c.name }}</span><span style="font:400 10.5px 'Geist Mono',monospace;color:var(--text3)">--{{ c.token }} · {{ c.hex }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="height:1px;background:var(--border)"></div>
+
+          <div style="display:grid;grid-template-columns:110px 1fr;gap:20px 16px;align-items:center">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3)">BOTONES</span>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+              <button style="height:32px;display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;border:0;border-radius:7px;background:var(--accent);color:var(--onAccent);font:500 13px Geist,system-ui,sans-serif"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:1.6;stroke-linecap:round"><line x1="8" y1="3.5" x2="8" y2="12.5"></line><line x1="3.5" y1="8" x2="12.5" y2="8"></line></svg>Nueva nota</button>
+              <button style="height:32px;padding:0 14px;border:1px solid var(--borderStrong);border-radius:7px;background:var(--surface);color:var(--text);font:500 13px Geist,system-ui,sans-serif">Editar</button>
+              <button style="height:32px;padding:0 12px;border:0;border-radius:7px;background:var(--surface2);color:var(--text);font:500 13px Geist,system-ui,sans-serif">Cancelar <span style="font-size:11px;color:var(--text3)">· hover</span></button>
+              <button style="height:32px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:var(--red);font:500 13px Geist,system-ui,sans-serif">Eliminar</button>
+              <button style="height:32px;padding:0 14px;border:0;border-radius:7px;background:var(--accent);color:var(--onAccent);font:500 13px Geist,system-ui,sans-serif;opacity:.5">Deshabilitado</button>
+            </div>
+
+            <span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3)">INPUT</span>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start">
+              <div style="height:36px;display:flex;align-items:center;padding:0 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:13px;color:var(--text3)">Ej. Pago de luz</div>
+              <div style="height:36px;display:flex;align-items:center;padding:0 11px;border:1px solid var(--accent);box-shadow:0 0 0 3px var(--accentSoft);border-radius:8px;background:var(--surface);font-size:13px">Vencimiento IVA</div>
+              <div style="display:flex;flex-direction:column;gap:5px"><div style="height:36px;box-sizing:border-box;border:1px solid var(--red);border-radius:8px;background:var(--surface)"></div><span style="font-size:11.5px;color:var(--red)">Escribí un título.</span></div>
+            </div>
+
+            <span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3)">CHECKBOX</span>
+            <div style="display:flex;align-items:center;gap:22px;font-size:12.5px;color:var(--text2)">
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:18px;height:18px;box-sizing:border-box;border-radius:5px;border:1.5px solid var(--borderStrong)"></span>Pendiente</span>
+              <span style="display:flex;align-items:center;gap:8px"><span style="width:18px;height:18px;border-radius:5px;background:var(--accent);display:grid;place-items:center;color:var(--onAccent)"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3.5,8.5 6.5,11.5 12.5,4.5"></polyline></svg></span>Hecha</span>
+            </div>
+
+            <span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3)">URGENCIA</span>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+              <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--redSoft);color:var(--red);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>Venció hace 3 días</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--amberSoft);color:var(--amber);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>Vence hoy</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--amberSoft);color:var(--amber);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>En 3 días</span>
+              <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:11.5px;color:var(--text3)">En 12 días</span>
+              <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:11.5px;color:var(--text3)">Hecha</span>
+            </div>
+
+            <span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text3)">FILA DE NOTA</span>
+            <div style="display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:var(--bg)">
+              <div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px">
+                <span style="flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:5px;border:1.5px solid var(--borderStrong)"></span>
+                <div style="flex:none;width:36px;display:flex;flex-direction:column;align-items:center;line-height:1"><span style="font-size:20px;font-weight:600;letter-spacing:-.03em">15</span><span style="margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3)">OCT</span></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:13.5px;font-weight:500">Monotributo – Cuota octubre</span><span style="font-size:12px;color:var(--text3)">Débito automático de la tarjeta.</span></div>
+                <span style="font-size:13px;font-weight:500;color:var(--text2);font-variant-numeric:tabular-nums">$ 32.221,67</span>
+                <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--amberSoft);color:var(--amber);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>En 2 días</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:var(--surface2)">
+                <span style="flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:5px;border:1.5px solid var(--borderStrong)"></span>
+                <div style="flex:none;width:36px;display:flex;flex-direction:column;align-items:center;line-height:1"><span style="font-size:20px;font-weight:600;letter-spacing:-.03em;color:var(--red)">10</span><span style="margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3)">OCT</span></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:13.5px;font-weight:500">Ingresos Brutos – Anticipo <span style="font-size:11px;font-weight:400;color:var(--text3)">· hover</span></span></div>
+                <span style="font-size:13px;font-weight:500;color:var(--text2);font-variant-numeric:tabular-nums">$ 42.380,00</span>
+                <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;background:var(--redSoft);color:var(--red);font-size:11.5px;font-weight:500"><span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>Venció hace 3 días</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px">
+                <span style="flex:none;width:18px;height:18px;border-radius:5px;background:var(--accent);display:grid;place-items:center;color:var(--onAccent)"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" style="stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3.5,8.5 6.5,11.5 12.5,4.5"></polyline></svg></span>
+                <div style="flex:1;min-width:0;display:flex;align-items:center;gap:14px;opacity:.45">
+                  <div style="flex:none;width:36px;display:flex;flex-direction:column;align-items:center;line-height:1"><span style="font-size:20px;font-weight:600;letter-spacing:-.03em">09</span><span style="margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3)">OCT</span></div>
+                  <span style="flex:1;font-size:13.5px;font-weight:500;text-decoration:line-through">Internet – Factura octubre</span>
+                  <span style="font-size:13px;font-weight:500;color:var(--text2);text-decoration:line-through">$ 19.990,00</span>
+                  <span style="font-size:11.5px;color:var(--text3);padding:0 8px">Hecha</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const T={
+  claro:{bg:'#F7F6F3',surface:'#FFFFFF',surface2:'#EFEDE8',border:'#E5E2DC',borderStrong:'#D3CFC7',text:'#1F1D1A',text2:'#67635B',text3:'#9A958B',accent:'#2F6B5E',accentHover:'#275A4F',accentSoft:'#E1ECE8',onAccent:'#FFFFFF',red:'#B04A3A',redSoft:'#F6E5E0',amber:'#8F6118',amberSoft:'#F4EAD3'},
+  oscuro:{bg:'#1A1917',surface:'#22211F',surface2:'#2B2A27',border:'#33312E',borderStrong:'#46433E',text:'#ECE9E3',text2:'#A6A198',text3:'#77736B',accent:'#7DBDAA',accentHover:'#95CBBB',accentSoft:'rgba(125,189,170,.16)',onAccent:'#0F1F1A',red:'#E59B8C',redSoft:'rgba(229,155,140,.13)',amber:'#DDB56E',amberSoft:'rgba(221,181,110,.13)'}
+};
+const NAMES={bg:'Fondo',surface:'Superficie',surface2:'Superficie 2 / hover',border:'Borde',borderStrong:'Borde fuerte',text:'Texto',text2:'Texto secundario',text3:'Texto terciario',accent:'Acento',accentHover:'Acento hover',accentSoft:'Acento suave',onAccent:'Sobre acento',red:'Vencida',redSoft:'Vencida fondo',amber:'Próxima (≤3 días)',amberSoft:'Próxima fondo'};
+class Component extends DCLogic {
+  renderVals(){
+    const themes=['claro','oscuro'].map(k=>{const t=T[k],vars={};for(const x in t)vars['--'+x]=t[x];
+      Object.assign(vars,{background:t.bg,color:t.text,borderRadius:'12px',padding:'32px',display:'flex',flexDirection:'column',gap:'24px',boxShadow:k==='claro'?'0 0 0 1px rgba(0,0,0,.06)':'none'});
+      return {name:k==='claro'?'Modo claro':'Modo oscuro',vars,colors:Object.keys(t).map(c=>({token:c,name:NAMES[c],hex:t[c]}))}});
+    return {themes,
+      type:[
+        {name:'Título detalle',spec:'19 / 600 / -1.5%',size:'19px',weight:600,ls:'-.015em',color:'#1F1D1A',sample:'Vencimiento IVA – Septiembre'},
+        {name:'Monto destacado',spec:'22 / 600 / tabular',size:'22px',weight:600,ls:'-.02em',color:'#1F1D1A',sample:'$ 184.560,00'},
+        {name:'Día (fila)',spec:'20 / 600 / -3%',size:'20px',weight:600,ls:'-.03em',color:'#1F1D1A',sample:'13'},
+        {name:'Mes (fila)',spec:'10 / 600 / +8% · MAYÚS',size:'10px',weight:600,ls:'.08em',color:'#9A958B',sample:'OCT'},
+        {name:'Título de nota',spec:'13.5 / 500',size:'13.5px',weight:500,ls:'0',color:'#1F1D1A',sample:'Monotributo – Cuota octubre'},
+        {name:'Encabezado panel',spec:'14 / 600',size:'14px',weight:600,ls:'-.01em',color:'#1F1D1A',sample:'Nueva nota'},
+        {name:'Grupo / label',spec:'12 / 500–600',size:'12px',weight:600,ls:'0',color:'#67635B',sample:'Esta semana 4'},
+        {name:'Secundario',spec:'12 / 400',size:'12px',weight:400,ls:'0',color:'#9A958B',sample:'Débito automático de la tarjeta.'}
+      ],
+      spacing:[{v:'4',w:'4px',use:'ícono ↔ texto mínimo'},{v:'6',w:'6px',use:'chips, botones'},{v:'8',w:'8px',use:'label ↔ input'},{v:'12',w:'12px',use:'padding de fila (x)'},{v:'14',w:'14px',use:'columnas de fila'},{v:'20',w:'20px',use:'padding de panel'},{v:'26',w:'26px',use:'entre grupos'},{v:'28',w:'28px',use:'margen de contenido'}],
+      radii:[{v:'5px',use:'Checkbox, kbd'},{v:'6px',use:'Badge, chips de fecha'},{v:'7px',use:'Botones, búsqueda'},{v:'8px',use:'Inputs'},{v:'10px',use:'Fila, calendario, ventana'}]
+    };
+  }
+}
+</script>
+</body>
+</html>
