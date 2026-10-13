@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy · Notes</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<main>
+  <div class="marca">
+    <div class="icono">Nt</div>
+    <div>
+      <h1>Privacy Policy</h1>
+      <p class="sub">Notes · Last updated: October 13, 2026 · <a href="privacidad.html">Español</a></p>
+    </div>
+  </div>
+
+  <p>Notes is a desktop application for personal use. This policy explains what data it handles and what it does with it.</p>
+
+  <h2>Data stored by the application</h2>
+  <p>Notes (titles, dates, amounts, descriptions, links) and attached files are stored only on the user's computer, inside their home folder. Notes has no servers of its own and does not send this data to the developer. The only exception is the Google Calendar sync described below, which the user turns on if they want it.</p>
+
+  <h2>Use of Google Calendar</h2>
+  <p>The Google Calendar connection is optional and is turned on by the user. If they turn it on, Notes requests these permissions:</p>
+  <ul>
+    <li><strong>See the list of calendars</strong> (<code>calendar.calendarlist.readonly</code>), so the user can choose which calendar the due dates are added to.</li>
+    <li><strong>View and edit events</strong> (<code>calendar.events</code>), to create, update and delete the events that represent their due dates.</li>
+  </ul>
+  <p>Notes only creates, modifies and deletes the events it created itself (it identifies them with an internal marker). It does not read, modify or delete any other events in the calendar.</p>
+
+  <h3>Data Notes gets from Google</h3>
+  <ul>
+    <li>The user's list of calendars (name and identifier), only to show it when choosing the calendar. The name and identifier of the chosen calendar are saved.</li>
+    <li>The events Notes created in that calendar, to update or delete them when the corresponding note changes.</li>
+  </ul>
+
+  <h3>Data Notes sends to Google</h3>
+  <p>For each note, an all-day event is created in the chosen calendar with the title and amount, the date, the description, the links, the installment or repetition, and a reminder. Attached files are never sent. Notes marked as not shown in Google Calendar are not sent.</p>
+
+  <h3>Storage and protection</h3>
+  <p>Communication is direct between the user's computer and Google, always encrypted (HTTPS). The refresh token issued by Google is stored only on that computer, in a file readable only by the user. The developer does not receive or store any Google data. Data obtained from Google is not transferred to third parties, is not used for advertising or to train models, and is used only for the sync feature described here.</p>
+  <p>Notes' use of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+  <h2>How to revoke access</h2>
+  <p>From Notes: Google Calendar panel → <strong>Disconnect</strong>, which revokes access in Google and deletes the token from the computer. Also from the Google account, at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Events already created stay in the calendar and can be deleted manually.</p>
+
+  <h2>Deleting the data</h2>
+  <p>Uninstalling Notes and deleting the folder <code>~/.local/share/com.nicolasdri.agenda/</code> removes all saved notes, attachments and credentials.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy or about the data: <a href="https://github.com/nicolasdri92/notes-app/issues">github.com/nicolasdri92/notes-app/issues</a>.</p>
+
+  <footer><a href="./">Back to Notes</a></footer>
+</main>
+</body>
+</html>
