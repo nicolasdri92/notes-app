@@ -1,6 +1,6 @@
 [package]
 name = "agenda"
-version = "1.0.0"
+version = "1.0.1"
 description = "Agenda minimalista de recordatorios con fecha"
 edition = "2021"
 

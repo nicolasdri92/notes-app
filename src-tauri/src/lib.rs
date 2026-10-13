@@ -217,7 +217,7 @@ fn crear_bandeja(app: &tauri::App) -> tauri::Result<()> {
     let abrir = MenuItem::with_id(app, "abrir", "Abrir Notes", true, None::<&str>)?;
     let salir = MenuItem::with_id(app, "salir", "Salir", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&abrir, &PredefinedMenuItem::separator(app)?, &salir])?;
-    let mut bandeja = TrayIconBuilder::with_id("principal")
+    let mut bandeja = TrayIconBuilder::with_id("notes")
         .tooltip("Notes")
         .menu(&menu)
         .on_menu_event(|app, e| match e.id().as_ref() {
