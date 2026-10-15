@@ -63,6 +63,9 @@ pub struct Nota {
     /// `Some(false)` = no se muestra en Google Calendar.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gcal: Option<bool>,
+    /// `Some(true)` = evento privado en Google Calendar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub privado: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -294,6 +297,7 @@ mod tests {
             anual: false,
             links: vec![],
             gcal: None,
+            privado: None,
             files: files
                 .into_iter()
                 .map(|id| Adjunto { id: id.into(), name: "f.pdf".into(), size: 1 })

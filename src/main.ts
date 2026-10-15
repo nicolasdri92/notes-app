@@ -44,6 +44,8 @@ type Form = {
   auto: boolean;
   /** Se muestra en Google Calendar. */
   gcal: boolean;
+  /** Evento privado en Google Calendar. */
+  privado: boolean;
   /** Links a copiar en la nota nueva (al repetir una nota). */
   links?: Enlace[];
 };
@@ -352,7 +354,8 @@ function formHTML() {
       </div>
       ${googleListo() ? `<button class="check-row gcal-row" data-gcal-form>
           <span class="cb${f.gcal ? " on" : ""}">${f.gcal ? ICON.check : ""}</span>Mostrar en Google Calendar
-        </button>` : ""}
+        </button>
+        ${visibilidadHTML(f.privado, "data-vis-form", !f.gcal)}` : ""}
       ${!f.id && f.links?.length ? `<span class="hint">${ICON.link} También se copia${f.links.length > 1 ? `n ${f.links.length} links` : " 1 link"}: ${f.links.map((l) => esc(urlCorta(l.url))).join(", ")}</span>` : ""}
     </div>
     <div class="panel-f">
@@ -576,6 +579,7 @@ function detailHTML() {
         <button class="check-row gcal-row" data-act="gcal-toggle">
           <span class="cb${n.gcal !== false ? " on" : ""}">${n.gcal !== false ? ICON.check : ""}</span>Mostrar en Google Calendar
         </button>
+        ${visibilidadHTML(n.privado === true, "data-act", n.gcal === false)}
         ${n.series ? `<span class="hint">Se aplica a las ${serieDeNota(n).length} cuotas de la serie.</span>` : ""}
       </div>` : ""}
       <div class="field">
@@ -667,6 +671,14 @@ panelRoot.addEventListener("click", (e) => {
     S.form.gcal = !S.form.gcal;
     gf.querySelector(".cb")!.classList.toggle("on", S.form.gcal);
     gf.querySelector(".cb")!.innerHTML = S.form.gcal ? ICON.check : "";
+    panelRoot.querySelector(".vis-row")?.classList.toggle("oculta", !S.form.gcal);
+    return;
+  }
+  const vf = el.closest<HTMLElement>("[data-vis-form]");
+  if (vf && S.form) {
+    S.form.privado = vf.dataset.visForm === "privado";
+    panelRoot.querySelectorAll<HTMLElement>("[data-vis-form]").forEach((b) =>
+      b.classList.toggle("on", (b.dataset.visForm === "privado") === S.form!.privado));
     return;
   }
   if (el.closest("[data-par]") && S.form) {
@@ -697,6 +709,13 @@ panelRoot.addEventListener("click", (e) => {
     case "delete": return del(false);
     case "delete-series": return del(true);
     case "repeat": return repeatNote();
+    case "publico": case "privado": {
+      const n = selected();
+      if (!n || (act === "privado") === (n.privado === true)) return;
+      setPrivado(n, act === "privado");
+      commit();
+      return renderPanel();
+    }
     case "gcal-toggle": {
       const n = selected();
       if (!n) return;
@@ -735,7 +754,7 @@ function openNew() {
   const t = today();
   Object.assign(S, {
     panel: "form", selId: null, confirm: false, tried: false,
-    form: { id: null, title: "", date: iso(t), amount: "", desc: "", freq: "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: true },
+    form: { id: null, title: "", date: iso(t), amount: "", desc: "", freq: "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: true, privado: false },
     cal: firstOfMonth(t),
   });
   renderPanel();
@@ -752,7 +771,7 @@ function repeatNote() {
     panel: "form", selId: null, confirm: false, tried: false, addingLink: false,
     form: {
       id: null, title: n.title, date: iso(sig), amount: fmtAmountInput(n.amount), desc: n.desc,
-      freq: n.anual ? "anual" : "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: n.gcal !== false,
+      freq: n.anual ? "anual" : "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: n.gcal !== false, privado: n.privado === true,
       links: n.links?.length ? n.links : undefined,
     },
     cal: firstOfMonth(sig),
@@ -785,6 +804,7 @@ const formDeNota = (n: Nota): Form => ({
   id: n.id, title: n.title, date: n.date, amount: fmtAmountInput(n.amount), desc: n.desc,
   freq: repeticionDe(n), cuotas: n.series?.total ?? 3, desde: n.series?.n ?? 1, par: n.series?.par != null, auto: !n.series,
   gcal: n.gcal !== false,
+  privado: n.privado === true,
 });
 
 function edit() {
@@ -808,7 +828,7 @@ function save() {
     $("#f-title", panelRoot).focus();
     return;
   }
-  const data = { title: f.title.trim(), date: f.date, amount: parseAmount(f.amount), desc: f.desc.trim(), gcal: f.gcal };
+  const data = { title: f.title.trim(), date: f.date, amount: parseAmount(f.amount), desc: f.desc.trim(), gcal: f.gcal, privado: f.privado || undefined };
   const original = f.id ? S.notes.find((n) => n.id === f.id) : null;
   // Si cambia la repetición, la nota editada pasa a ser la cuota 1 (o queda suelta) y se crean las siguientes.
   const cambiaRep = !original || repeticionCambia(f, original);
@@ -839,7 +859,10 @@ function save() {
         n.series?.id === original.series!.id && n.series.n === par && !n.done ? { ...n, amount: data.amount } : n);
     }
     // Compartir o no en Google vale para toda la serie.
-    if (!cambiaRep && original.series) setGcal(original, f.gcal);
+    if (!cambiaRep && original.series) {
+      setGcal(original, f.gcal);
+      setPrivado(original, f.privado);
+    }
   }
   S.notes = [...S.notes, ...nuevas];
   commit();
@@ -961,6 +984,27 @@ function saveLink() {
   S.addingLink = false;
   renderPanel();
   renderList();
+}
+
+/** Pública o privada en Google Calendar, para la nota y toda su serie. */
+function setPrivado(n: Nota, valor: boolean) {
+  const ids = serieDeNota(n);
+  // Sin definir equivale a «pública»: solo se guarda el true.
+  S.notes = S.notes.map((x) => (ids.includes(x.id) ? { ...x, privado: valor || undefined } : x));
+}
+
+/**
+ * Selector Pública / Privada. `attr` es el atributo de los botones: en el formulario
+ * (`data-vis-form`) o en el detalle (`data-act`, que dispara la acción del panel).
+ */
+function visibilidadHTML(privado: boolean, attr: "data-vis-form" | "data-act", oculta: boolean) {
+  const boton = (valor: "publico" | "privado", texto: string, on: boolean) =>
+    `<button class="chip${on ? " on" : ""}" ${attr}="${valor}">${texto}</button>`;
+  return `<div class="vis-row${oculta ? " oculta" : ""}">
+    <span class="vis-lbl">Visibilidad</span>
+    <div class="chips">${boton("publico", "Pública", !privado)}${boton("privado", "Privada", privado)}</div>
+    <span class="hint">${privado ? "Quien comparta el calendario ve solo «Ocupado»." : "Se ven el título y el monto."}</span>
+  </div>`;
 }
 
 /** Muestra u oculta en Google Calendar la nota (y toda su serie). */

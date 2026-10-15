@@ -30,6 +30,8 @@ export type Nota = {
   links?: Enlace[];
   /** false = no se muestra en Google Calendar (sin definir = sí). */
   gcal?: boolean;
+  /** true = evento privado en Google Calendar (sin definir = público). */
+  privado?: boolean;
 };
 
 export type Tema = "claro" | "oscuro";

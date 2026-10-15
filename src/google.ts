@@ -31,6 +31,7 @@ function eventoDe(n: Nota) {
     date: n.date,
     end: iso(addDays(parseIso(n.date), 1)),
     reminder: !n.done,
+    privado: n.privado === true,
   };
 }
 

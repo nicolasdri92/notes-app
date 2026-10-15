@@ -78,6 +78,9 @@ pub struct EventoNota {
     date: String,
     end: String,
     reminder: bool,
+    /// Privado: quien comparta el calendario ve solo «Ocupado».
+    #[serde(default)]
+    privado: bool,
 }
 
 #[derive(Serialize, Default)]
@@ -269,6 +272,7 @@ fn cuerpo_evento(e: &EventoNota, aviso: i64) -> Value {
         "start": { "date": e.date },
         "end": { "date": e.end },
         "transparency": "transparent",
+        "visibility": if e.privado { "private" } else { "public" },
         "reminders": { "useDefault": false, "overrides": overrides },
         "extendedProperties": { "private": { "notesApp": "1", "notesId": e.id } },
     })
@@ -287,6 +291,8 @@ fn difiere(actual: &Value, deseado: &Value) -> bool {
         || s(actual, "description") != s(deseado, "description")
         || actual["start"]["date"] != deseado["start"]["date"]
         || actual["end"]["date"] != deseado["end"]["date"]
+        // Google omite «visibility» cuando es la del calendario («default»).
+        || actual["visibility"].as_str().unwrap_or("default") != deseado["visibility"].as_str().unwrap_or("default")
         || actual["reminders"]["useDefault"].as_bool().unwrap_or(true)
         || avisos(actual) != avisos(deseado)
 }
@@ -530,6 +536,7 @@ mod tests {
             date: "2026-10-09".into(),
             end: "2026-10-10".into(),
             reminder: true,
+            privado: false,
         }
     }
 
@@ -548,6 +555,20 @@ mod tests {
         let mut sin_aviso = ev();
         sin_aviso.reminder = false;
         assert!(difiere(&cuerpo_evento(&sin_aviso, AVISO_MISMO_DIA), &d));
+    }
+
+    #[test]
+    fn cambio_de_visibilidad_difiere() {
+        let publico = cuerpo_evento(&ev(), AVISO_MISMO_DIA);
+        let mut p = ev();
+        p.privado = true;
+        let privado = cuerpo_evento(&p, AVISO_MISMO_DIA);
+        assert_eq!(privado["visibility"], "private");
+        assert!(difiere(&publico, &privado));
+        // Un evento viejo sin visibilidad («default») se actualiza a «public».
+        let mut viejo = publico.clone();
+        viejo.as_object_mut().unwrap().remove("visibility");
+        assert!(difiere(&viejo, &publico));
     }
 
     #[test]
