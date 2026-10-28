@@ -31,6 +31,16 @@ npm run tauri build   # instalables (.deb, .rpm, AppImage) en src-tauri/target/r
 - `src/store.ts`: persistencia (comandos Tauri o localStorage)
 - `src/styles.css`: tokens claro/oscuro y componentes
 - `src-tauri/src/lib.rs`: comandos `load_data` / `save_data`; guardan en `~/.local/share/com.nicolasdri.agenda/agenda.json`
+- `src/comprobantes.ts` + `src-tauri/src/comprobante.rs`: descarga de comprobantes desde sitios con captcha
+
+## Comprobantes
+
+En el detalle de una nota, **Configurar descarga automática** guarda los datos del sitio (por ejemplo,
+titular y partida de Obras Sanitarias). **Descargar** abre el sitio en una ventana de la app con el
+formulario completo; vos resolvés el captcha y el PDF se adjunta solo a la nota.
+
+Para sumar un sitio: agregalo a `SITIOS` en `src/comprobantes.ts` y su dominio en
+`src-tauri/capabilities/comprobante.json` (es lo único que esa ventana puede hacer: entregar el PDF).
 
 ## Google Calendar
 

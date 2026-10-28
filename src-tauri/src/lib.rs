@@ -1,7 +1,8 @@
+mod comprobante;
 mod google;
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -40,6 +41,14 @@ pub struct Serie {
     pub par: Option<u32>,
 }
 
+/// Datos para descargar el comprobante desde un sitio (ver `SITIOS` en `src/comprobantes.ts`).
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Comprobante {
+    pub sitio: String,
+    #[serde(default)]
+    pub datos: BTreeMap<String, String>,
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Nota {
     pub id: String,
@@ -66,6 +75,8 @@ pub struct Nota {
     /// `Some(true)` = evento privado en Google Calendar.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub privado: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub comprobante: Option<Comprobante>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -83,7 +94,7 @@ fn ruta(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(ARCHIVO))
 }
 
-fn dir_adjuntos(app: &AppHandle) -> Result<PathBuf, String> {
+pub(crate) fn dir_adjuntos(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?.join(ADJUNTOS);
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     Ok(dir)
@@ -247,6 +258,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| mostrar_ventana(app)))
         .plugin(tauri_plugin_dialog::init())
         .manage(google::Sesion::default())
+        .manage(comprobante::Descarga::default())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             crear_bandeja(app)?;
@@ -256,9 +268,9 @@ pub fn run() {
             }
             Ok(())
         })
-        // Cerrar la ventana la esconde; para salir del todo está «Salir» en la barra superior.
+        // Cerrar la ventana principal la esconde; para salir del todo está «Salir» en la barra superior.
         .on_window_event(|w, e| {
-            if let WindowEvent::CloseRequested { api, .. } = e {
+            if let (WindowEvent::CloseRequested { api, .. }, "main") = (e, w.label()) {
                 api.prevent_close();
                 let _ = w.hide();
             }
@@ -275,7 +287,10 @@ pub fn run() {
             google::google_calendarios,
             google::google_elegir_calendario,
             google::google_desconectar,
-            google::google_sync
+            google::google_sync,
+            comprobante::comprobante_abrir,
+            comprobante::comprobante_recibido,
+            comprobante::comprobante_cerrar_popups
         ])
         .run(tauri::generate_context!())
         .expect("error al iniciar la aplicación");
@@ -298,6 +313,7 @@ mod tests {
             links: vec![],
             gcal: None,
             privado: None,
+            comprobante: None,
             files: files
                 .into_iter()
                 .map(|id| Adjunto { id: id.into(), name: "f.pdf".into(), size: 1 })

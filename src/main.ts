@@ -1,9 +1,10 @@
 import "@fontsource-variable/geist";
 import "./styles.css";
+import * as C from "./comprobantes";
 import * as G from "./google";
 import { abrirAdjunto, abrirLink, adjuntar, elegirArchivos, isTauri, load, save as persist } from "./store";
 import {
-  MES, type Enlace, type Frecuencia, type Nota, type Tema, type Urgencia,
+  MES, type Adjunto, type Comprobante, type Enlace, type Frecuencia, type Nota, type Tema, type Urgencia,
   addDays, addMonths, cap, cuotaPar, fmtSize, normUrl, shortDate, urlCorta, esc, firstOfMonth, fmtAmountInput, iso, longDate, money, monthTitle,
   norm, parseAmount, parseIso, rel, today, urgencia, diffDays,
 } from "./util";
@@ -20,6 +21,7 @@ const ICON = {
   clipSm: svg(12, 1.5, '<path d="M13 7.6 8.2 12.4a3 3 0 0 1-4.3-4.3l5-5a2 2 0 0 1 2.9 2.9l-5 5a1 1 0 0 1-1.5-1.5L9.8 5"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
   link: svg(14, 1.4, '<path d="M6.8 9.2a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 0 0-4-4l-.7.7"/><path d="M9.2 6.8a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 0 0 4 4l.7-.7"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
   linkLg: svg(16, 1.3, '<path d="M6.8 9.2a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 0 0-4-4l-.7.7"/><path d="M9.2 6.8a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 0 0 4 4l.7-.7"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
+  download: svg(14, 1.4, '<path d="M8 2.5v7.5M4.8 7 8 10.2 11.2 7"/><path d="M3 11.5v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
   file: svg(16, 1.3, '<path d="M9 1.8H4.5a1 1 0 0 0-1 1v10.4a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V5.3z"/><polyline points="9,1.8 9,5.3 12.5,5.3"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
   check: svg(12, 2.2, '<polyline points="3.5,8.5 6.5,11.5 12.5,4.5"/>', 'stroke-linecap="round" stroke-linejoin="round"'),
   chevRight: svg(12, 1.6, '<polyline points="6,4 10,8 6,12"/>', 'class="chev" stroke-linecap="round" stroke-linejoin="round"'),
@@ -48,6 +50,8 @@ type Form = {
   privado: boolean;
   /** Links a copiar en la nota nueva (al repetir una nota). */
   links?: Enlace[];
+  /** Datos del comprobante a copiar en la nota nueva (al repetir una nota). */
+  comprobante?: Comprobante | null;
 };
 
 const REPETICIONES: [Repeticion, string][] = [
@@ -123,6 +127,8 @@ const S = {
   },
   /** Campo «Agregar link» abierto en el detalle. */
   addingLink: false,
+  /** Datos del comprobante que se están configurando en el detalle. */
+  compEdit: null as null | (Comprobante & { tried: boolean }),
   toast: null as null | { text: string; undo?: () => void },
   flash: [] as string[],
   cal: firstOfMonth(today()),
@@ -223,17 +229,22 @@ function renderList() {
       </div>`;
     } else {
       const mismoMes = (d: Date) => d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth();
+      // Las pendientes de meses siguientes van agrupadas por mes («Noviembre 2026», …).
+      const meses = [...new Set(items
+        .filter((x) => !x.n.done && x.dd >= 0 && !mismoMes(x.d))
+        .map((x) => iso(firstOfMonth(x.d))))];
       const defs: [string, (x: Item) => boolean][] = [
         ["Vencidas", (x) => !x.n.done && x.dd < 0],
         ["Este mes", (x) => !x.n.done && x.dd >= 0 && mismoMes(x.d)],
-        ["Próximas", (x) => !x.n.done && x.dd >= 0 && !mismoMes(x.d)],
+        ...meses.map((m): [string, (x: Item) => boolean] =>
+          [monthTitle(parseIso(m)), (x) => !x.n.done && x.dd >= 0 && !mismoMes(x.d) && iso(firstOfMonth(x.d)) === m]),
         ["Hechas", (x) => x.n.done],
       ];
       html = defs
         .map(([name, f], i) => {
           let g = items.filter(f);
           if (!g.length) return "";
-          const isDone = i === 3;
+          const isDone = i === defs.length - 1;
           if (isDone) g = g.reverse();
           const collapsible = isDone && !q;
           const open = !collapsible || S.doneOpen;
@@ -582,6 +593,7 @@ function detailHTML() {
         ${visibilidadHTML(n.privado === true, "data-act", n.gcal === false)}
         ${n.series ? `<span class="hint">Se aplica a las ${serieDeNota(n).length} cuotas de la serie.</span>` : ""}
       </div>` : ""}
+      ${isTauri ? comprobanteHTML(n) : ""}
       <div class="field">
         <span class="d-k">Adjuntos</span>
         ${(n.files ?? []).map((a) => `<div class="file" data-open-file="${esc(a.id)}" title="Abrir ${esc(a.name)}">
@@ -611,8 +623,59 @@ function detailHTML() {
     ${footer}`;
 }
 
+/** Descarga automática del comprobante: configurarla, o descargar el del vencimiento de la nota. */
+function comprobanteHTML(n: Nota) {
+  const e = S.compEdit;
+  const sitio = C.sitioDe(e ?? n.comprobante);
+  let cuerpo: string;
+  if (e && sitio) {
+    const falta = (id: string) => e.tried && !e.datos[id]?.trim();
+    const campos = sitio.campos.map((k) => `<div class="field">
+        <label class="lbl" for="comp-${k.id}">${esc(k.label)}</label>
+        ${k.opciones
+          ? `<div class="chips${falta(k.id) ? " err" : ""}">${k.opciones.map((o) =>
+              `<button class="chip${e.datos[k.id] === o ? " on" : ""}" data-comp-op="${k.id}" data-valor="${esc(o)}">${esc(o)}</button>`).join("")}</div>`
+          : `<input id="comp-${k.id}" class="input${falta(k.id) ? " err" : ""}" data-comp-campo="${k.id}" value="${esc(e.datos[k.id] ?? "")}" autocomplete="off" spellcheck="false" />`}
+      </div>`).join("");
+    cuerpo = `<div class="comp-form">
+        ${C.SITIOS.length > 1
+          ? `<div class="chips">${C.SITIOS.map((x) => `<button class="chip${x.id === e.sitio ? " on" : ""}" data-comp-sitio="${x.id}">${esc(x.nombre)}</button>`).join("")}</div>`
+          : `<span class="comp-sitio">${esc(sitio.nombre)}</span>`}
+        ${campos}
+        <span class="hint">El período del comprobante sale de la fecha del vencimiento.${n.series ? ` Se guarda en las ${serieDeNota(n).length} cuotas de la serie.` : ""}</span>
+        ${sitio.campos.some((k) => falta(k.id)) ? '<span class="errmsg">Completá todos los datos.</span>' : ""}
+        <div class="comp-btns">
+          ${n.comprobante ? `<button class="btn btn-danger" data-act="comp-quitar">${ICON.trash}Quitar</button>` : ""}
+          <div class="btns">
+            <button class="btn btn-ghost" data-act="comp-cancel">Cancelar</button>
+            <button class="btn btn-primary" data-act="comp-save">Guardar</button>
+          </div>
+        </div>
+      </div>`;
+  } else if (n.comprobante && sitio) {
+    cuerpo = `<div class="comp-line">
+        <div class="comp-info"><span class="comp-sitio">${esc(sitio.nombre)}</span><span class="hint">${esc(sitio.resumen(n.comprobante.datos))}</span></div>
+        <button class="btn btn-ghost" data-act="comp-config">Editar</button>
+      </div>
+      <div><button class="btn btn-secondary" data-act="comp-descargar">${ICON.download}Descargar el de ${monthTitle(C.periodoDe(n)!).toLowerCase()}</button></div>`;
+  } else {
+    cuerpo = `<div class="attach-row"><button class="btn btn-ghost btn-attach" data-act="comp-config">${ICON.download}Configurar descarga automática</button></div>`;
+  }
+  return `<div class="field"><span class="d-k">Comprobante</span>${cuerpo}</div>`;
+}
+
 panelRoot.addEventListener("click", (e) => {
   const el = e.target as HTMLElement;
+  const compSitio = el.closest<HTMLElement>("[data-comp-sitio]");
+  if (compSitio && S.compEdit) {
+    S.compEdit = { sitio: compSitio.dataset.compSitio!, datos: {}, tried: false };
+    return renderPanel();
+  }
+  const compOp = el.closest<HTMLElement>("[data-comp-op]");
+  if (compOp && S.compEdit) {
+    S.compEdit.datos[compOp.dataset.compOp!] = compOp.dataset.valor!;
+    return renderPanel();
+  }
   const calId = el.closest<HTMLElement>("[data-cal-id]");
   if (calId) return void elegirCalendarioGoogle(calId.dataset.calId!);
   const rm = el.closest<HTMLElement>("[data-remove-file]");
@@ -729,6 +792,18 @@ panelRoot.addEventListener("click", (e) => {
     case "link-add": S.addingLink = true; renderPanel(); return panelRoot.querySelector<HTMLInputElement>("#link-input")?.focus();
     case "link-save": return saveLink();
     case "attach": return void elegirArchivos().then(attach).catch((err) => console.error(err));
+    case "comp-config": {
+      const n = selected();
+      if (!n) return;
+      const c = n.comprobante ?? { sitio: C.SITIOS[0].id, datos: {} };
+      S.compEdit = { sitio: c.sitio, datos: { ...c.datos }, tried: false };
+      renderPanel();
+      return panelRoot.querySelector<HTMLInputElement>("[data-comp-campo]")?.focus();
+    }
+    case "comp-cancel": S.compEdit = null; return renderPanel();
+    case "comp-save": return saveComprobante();
+    case "comp-quitar": return setComprobante(null);
+    case "comp-descargar": return descargarComprobante();
   }
 });
 
@@ -768,11 +843,12 @@ function repeatNote() {
   if (!n) return;
   const sig = n.anual ? addMonths(parseIso(n.date), 12) : addMonths(parseIso(n.date), 1);
   Object.assign(S, {
-    panel: "form", selId: null, confirm: false, tried: false, addingLink: false,
+    panel: "form", selId: null, confirm: false, tried: false, addingLink: false, compEdit: null,
     form: {
       id: null, title: n.title, date: iso(sig), amount: fmtAmountInput(n.amount), desc: n.desc,
       freq: n.anual ? "anual" : "ninguna", cuotas: 3, desde: 1, par: false, auto: true, gcal: n.gcal !== false, privado: n.privado === true,
       links: n.links?.length ? n.links : undefined,
+      comprobante: n.comprobante,
     },
     cal: firstOfMonth(sig),
   });
@@ -782,13 +858,13 @@ function repeatNote() {
 }
 
 function openDetail(id: string) {
-  Object.assign(S, { panel: "detail", selId: id, confirm: false, form: null, tried: false, addingLink: false });
+  Object.assign(S, { panel: "detail", selId: id, confirm: false, form: null, tried: false, addingLink: false, compEdit: null });
   renderPanel();
   renderList();
 }
 
 function close() {
-  Object.assign(S, { panel: null, selId: null, confirm: false, form: null, tried: false, addingLink: false });
+  Object.assign(S, { panel: null, selId: null, confirm: false, form: null, tried: false, addingLink: false, compEdit: null });
   renderPanel();
   renderList();
 }
@@ -811,7 +887,7 @@ function edit() {
   const n = selected();
   if (!n) return;
   Object.assign(S, {
-    panel: "form", confirm: false, tried: false,
+    panel: "form", confirm: false, tried: false, compEdit: null,
     form: formDeNota(n),
     cal: firstOfMonth(parseIso(n.date)),
   });
@@ -845,6 +921,7 @@ function save() {
       amount: conPar && i > 1 ? null : data.amount,
       // Los links de la nota convertida pasan a todas las cuotas; los archivos quedan en ella.
       links: original?.links ? [...original.links] : f.links ? f.links.map((l) => ({ ...l, id: newId() })) : [],
+      comprobante: original ? original.comprobante : f.comprobante,
     };
   });
 
@@ -1037,6 +1114,61 @@ function removeLink(linkId: string) {
   });
 }
 
+/** Guarda (o quita, con `null`) los datos del comprobante en la nota y toda su serie. */
+function setComprobante(c: Comprobante | null) {
+  const n = selected();
+  if (!n) return;
+  const ids = serieDeNota(n);
+  S.notes = S.notes.map((x) => (ids.includes(x.id) ? { ...x, comprobante: c ?? undefined } : x));
+  S.compEdit = null;
+  commit();
+  renderPanel();
+}
+
+function saveComprobante() {
+  const e = S.compEdit;
+  const sitio = C.sitioDe(e);
+  if (!e || !sitio) return;
+  const datos = Object.fromEntries(sitio.campos.map((k) => [k.id, (e.datos[k.id] ?? "").trim()]));
+  if (Object.values(datos).some((v) => !v)) {
+    e.tried = true;
+    return renderPanel();
+  }
+  setComprobante({ sitio: e.sitio, datos });
+}
+
+function descargarComprobante() {
+  const n = selected();
+  if (!n) return;
+  C.abrir(n).catch((err) => {
+    console.error(err);
+    showToast("No se pudo abrir el sitio del comprobante");
+  });
+}
+
+/** Llega el PDF de una descarga: se adjunta a su nota y, si se pudieron leer, se cargan el monto y el vencimiento. */
+function comprobanteRecibido(notaId: string, a: Adjunto, texto: string | null) {
+  const n = S.notes.find((x) => x.id === notaId);
+  // Si la nota se borró mientras tanto, la copia se limpia al reiniciar la app.
+  if (!n) return;
+  setFiles(notaId, (prev) => [...prev, a]);
+  const leido = texto ? C.sitioDe(n.comprobante)?.leer?.(texto) : null;
+  // Un vencimiento muy lejano es de otra factura (p. ej. se descargó la de otro mes): no se toca la nota.
+  const otra = !!leido && Math.abs(diffDays(parseIso(leido.fecha), parseIso(n.date))) > 20;
+  const l = otra ? null : leido;
+  const cambia = !!l && (l.fecha !== n.date || l.monto !== n.amount);
+  if (l && cambia) S.notes = S.notes.map((x) => (x.id === notaId ? { ...x, date: l.fecha, amount: l.monto } : x));
+  commit();
+  renderList();
+  if (S.panel === "detail" && S.selId === notaId) renderPanel();
+  if (otra) return showToast(`Comprobante adjuntado, pero vence el ${shortDate(parseIso(leido!.fecha))}: no se cambió la nota`);
+  if (!l) return showToast(`Comprobante adjuntado a «${n.title}»`);
+  if (!cambia) return showToast("Comprobante adjuntado · el monto y el vencimiento ya coincidían");
+  showToast(`Comprobante adjuntado · ${shortDate(parseIso(l.fecha))}, ${money(l.monto)}`, () => {
+    S.notes = S.notes.map((x) => (x.id === notaId ? { ...x, date: n.date, amount: n.amount } : x));
+  });
+}
+
 // Enter agrega el link; Esc cierra el campo sin cerrar el panel.
 panelRoot.addEventListener("keydown", (e) => {
   if ((e.target as HTMLElement).id !== "link-input") return;
@@ -1050,7 +1182,11 @@ panelRoot.addEventListener("keydown", (e) => {
   }
 });
 panelRoot.addEventListener("input", (e) => {
-  const t = e.target as HTMLElement;
+  const t = e.target as HTMLInputElement;
+  if (t.dataset.compCampo && S.compEdit) {
+    S.compEdit.datos[t.dataset.compCampo] = t.value;
+    return t.classList.remove("err");
+  }
   if (t.id !== "link-input" || !t.classList.contains("err")) return;
   t.classList.remove("err");
   $("#link-err", panelRoot).hidden = true;
@@ -1126,7 +1262,7 @@ function renderGoogle() {
 }
 
 function openGoogle() {
-  Object.assign(S, { panel: "google", selId: null, confirm: false, form: null, tried: false, addingLink: false });
+  Object.assign(S, { panel: "google", selId: null, confirm: false, form: null, tried: false, addingLink: false, compEdit: null });
   renderPanel();
   renderList();
   if (S.g.estado?.conectado && !S.g.estado.calendario && !S.g.calendarios) cargarCalendarios();
@@ -1307,6 +1443,7 @@ if (isTauri) {
     $("#win-min").addEventListener("click", () => w.minimize());
     $("#win-close").addEventListener("click", () => w.close());
   });
+  C.alRecibir(comprobanteRecibido);
   // Arrastrar archivos sobre la ventana con una nota abierta los adjunta a esa nota.
   import("@tauri-apps/api/webview").then(({ getCurrentWebview }) =>
     getCurrentWebview().onDragDropEvent(({ payload: p }) => {

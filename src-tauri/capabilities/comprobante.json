@@ -1,0 +1,19 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "comprobante",
+  "description": "Ventana que abre el sitio del comprobante: solo puede entregar el PDF y cerrar sus popups de login. Al sumar un sitio en src/comprobantes.ts, agregar su dominio acá.",
+  "windows": [
+    "comprobante"
+  ],
+  "remote": {
+    "urls": [
+      "https://serviciostributarios.concordia.gob.ar/*",
+      "https://oficinavirtual.gasnea.com.ar/*",
+      "https://www.e-coopelec.com.ar/*"
+    ]
+  },
+  "permissions": [
+    "allow-comprobante-recibido",
+    "allow-comprobante-cerrar-popups"
+  ]
+}

@@ -32,7 +32,11 @@ export type Nota = {
   gcal?: boolean;
   /** true = evento privado en Google Calendar (sin definir = público). */
   privado?: boolean;
+  /** Datos para descargar el comprobante desde un sitio (ver `SITIOS` en comprobantes.ts). */
+  comprobante?: Comprobante | null;
 };
+
+export type Comprobante = { sitio: string; datos: Record<string, string> };
 
 export type Tema = "claro" | "oscuro";
 

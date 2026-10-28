@@ -15,7 +15,32 @@ fn credenciales_google() {
     println!("cargo:rustc-env=NOTES_GOOGLE_CLIENT_SECRET={secret}");
 }
 
+/// Comandos de la app. Al declararlos, cada ventana necesita su permiso `allow-<comando>`
+/// (ver `capabilities/`): así la ventana del comprobante, que carga un sitio externo, solo
+/// puede llamar a `comprobante_recibido`.
+const COMANDOS: &[&str] = &[
+    "load_data",
+    "save_data",
+    "adjuntar",
+    "abrir_adjunto",
+    "abrir_link",
+    "google_estado",
+    "google_cargar_credenciales",
+    "google_conectar",
+    "google_calendarios",
+    "google_elegir_calendario",
+    "google_desconectar",
+    "google_sync",
+    "comprobante_abrir",
+    "comprobante_recibido",
+    "comprobante_cerrar_popups",
+];
+
 fn main() {
     credenciales_google();
-    tauri_build::build()
+    tauri_build::try_build(
+        tauri_build::Attributes::new()
+            .app_manifest(tauri_build::AppManifest::new().commands(COMANDOS)),
+    )
+    .expect("error al preparar la compilación");
 }

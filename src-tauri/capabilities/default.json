@@ -8,6 +8,19 @@
     "core:window:allow-minimize",
     "core:window:allow-close",
     "core:window:allow-start-dragging",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    "allow-load-data",
+    "allow-save-data",
+    "allow-adjuntar",
+    "allow-abrir-adjunto",
+    "allow-abrir-link",
+    "allow-google-estado",
+    "allow-google-cargar-credenciales",
+    "allow-google-conectar",
+    "allow-google-calendarios",
+    "allow-google-elegir-calendario",
+    "allow-google-desconectar",
+    "allow-google-sync",
+    "allow-comprobante-abrir"
   ]
 }
